@@ -1,0 +1,28 @@
+project_id = "colsrypdsagbweilmliv"
+
+[functions.send-sms-alert]
+verify_jwt = true
+
+[functions.speech-to-text]
+verify_jwt = true
+
+[functions.calculate-risk-index]
+verify_jwt = true
+
+[functions.get-rainfall-data]
+verify_jwt = true
+
+[functions.text-to-speech]
+verify_jwt = true
+
+[functions.health-chatbot]
+verify_jwt = true
+
+[functions.iot-sensor-data]
+verify_jwt = false
+
+[functions.alert-escalation]
+verify_jwt = true
+
+[functions.sms-sensor-gateway]
+verify_jwt = false

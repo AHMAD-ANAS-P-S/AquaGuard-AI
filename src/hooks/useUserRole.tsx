@@ -1,0 +1,80 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
+
+export type UserRole = 'admin' | 'official' | 'asha_worker' | 'citizen';
+
+export const useUserRole = () => {
+  const { user } = useAuth();
+  const [roles, setRoles] = useState<UserRole[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setRoles([]);
+      setLoading(false);
+      return;
+    }
+
+    // Reset to loading whenever the user changes so consumers
+    // don't briefly see (loading=false, roles=[]) and redirect away.
+    setLoading(true);
+    loadRoles();
+  }, [user?.id]);
+
+  const loadRoles = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setRoles(data.map(r => r.role as UserRole));
+      } else {
+        // Default role for new users
+        await assignDefaultRole();
+      }
+    } catch (error) {
+      console.error('Error loading roles:', error);
+      setRoles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const assignDefaultRole = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: user.id, role: 'citizen' });
+
+      if (error) throw error;
+      
+      setRoles(['citizen']);
+    } catch (error) {
+      console.error('Error assigning default role:', error);
+      setRoles([]);
+    }
+  };
+
+  const hasRole = (role: UserRole) => roles.includes(role);
+
+  const isOfficial = () => hasRole('admin') || hasRole('official');
+
+  const isCommunity = () => hasRole('citizen') || hasRole('asha_worker');
+
+  return {
+    roles,
+    loading,
+    hasRole,
+    isOfficial,
+    isCommunity,
+  };
+};
