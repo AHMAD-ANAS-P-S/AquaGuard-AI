@@ -59,7 +59,11 @@ const Auth = () => {
   };
 
   const checkExistingRole = async (userId: string): Promise<string | null> => {
-    const { data } = await supabase.from('user_roles').select('role').eq('user_id', userId);
+    const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId);
+    if (error) {
+      console.error('[Auth] Role lookup error:', error);
+      throw new Error(error.message);
+    }
     if (data && data.length > 0) return data[0].role;
     return null;
   };
@@ -78,6 +82,31 @@ const Auth = () => {
         return;
       }
       if (data.user) {
+        let existingRole: string | null = null;
+        try {
+          existingRole = await checkExistingRole(data.user.id);
+        } catch (err: any) {
+          await supabase.auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Security Check Failed",
+            description: `Could not verify user roles: ${err.message || 'Unknown database error'}.`
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (!existingRole) {
+          await supabase.auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "No role assigned to this account. Please contact an administrator."
+          });
+          setLoading(false);
+          return;
+        }
+
         const otp = generateOTP();
         setGeneratedOtp(otp);
         setPendingEmail(loginData.email);
@@ -106,17 +135,51 @@ const Auth = () => {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const existingRole = await checkExistingRole(user.id);
-      if (existingRole) {
-        if (existingRole === 'admin' || existingRole === 'official') {
-          navigate('/official-dashboard', { replace: true });
+      try {
+        const existingRole = await checkExistingRole(user.id);
+        if (existingRole) {
+          switch (existingRole) {
+            case 'admin':
+              navigate('/admin-dashboard', { replace: true });
+              break;
+            case 'health_official':
+            case 'official':
+              navigate('/official-dashboard', { replace: true });
+              break;
+            case 'asha_worker':
+            case 'volunteer':
+            case 'citizen':
+              navigate('/community-dashboard', { replace: true });
+              break;
+            case 'clinic_staff':
+              navigate('/clinic-dashboard', { replace: true });
+              break;
+            default:
+              navigate('/community-dashboard', { replace: true });
+          }
+          return;
         } else {
-          navigate('/community-dashboard', { replace: true });
+          await supabase.auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "No role assigned to this account."
+          });
+          navigate('/auth', { replace: true });
+          return;
         }
+      } catch (err: any) {
+        await supabase.auth.signOut();
+        toast({
+          variant: "destructive",
+          title: "Session Error",
+          description: `Failed to confirm roles: ${err.message || 'Unknown error'}`
+        });
+        navigate('/auth', { replace: true });
         return;
       }
     }
-    navigate('/community-dashboard', { replace: true });
+    navigate('/auth', { replace: true });
   };
 
   const handleResendOTP = async () => {

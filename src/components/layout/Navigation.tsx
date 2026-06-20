@@ -31,8 +31,15 @@ export const Navigation = () => {
 
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
+  const getDashboardPath = () => {
+    if (roles.includes('admin')) return '/admin-dashboard';
+    if (roles.includes('clinic_staff')) return '/clinic-dashboard';
+    if (roles.includes('health_official') || roles.includes('official')) return '/official-dashboard';
+    return '/community-dashboard';
+  };
+
   const communityNavItems = [
-    { path: "/community-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+    { path: getDashboardPath(), label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
     { path: "/alerts", label: t('nav.alerts'), icon: Bell },
     { path: "/map", label: t('nav.mapView'), icon: Map },
@@ -41,7 +48,7 @@ export const Navigation = () => {
   ];
 
   const officialNavItems = [
-    { path: "/official-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+    { path: getDashboardPath(), label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
     { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
     { path: "/iot-monitoring", label: t('nav.iotMonitoring'), icon: Activity },

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-export type UserRole = 'admin' | 'official' | 'asha_worker' | 'citizen';
+export type UserRole = 'admin' | 'official' | 'health_official' | 'asha_worker' | 'volunteer' | 'clinic_staff' | 'citizen';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -66,9 +66,9 @@ export const useUserRole = () => {
 
   const hasRole = (role: UserRole) => roles.includes(role);
 
-  const isOfficial = () => hasRole('admin') || hasRole('official');
+  const isOfficial = () => hasRole('admin') || hasRole('official') || hasRole('health_official') || hasRole('clinic_staff');
 
-  const isCommunity = () => hasRole('citizen') || hasRole('asha_worker');
+  const isCommunity = () => hasRole('citizen') || hasRole('asha_worker') || hasRole('volunteer');
 
   return {
     roles,

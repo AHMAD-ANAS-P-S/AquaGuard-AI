@@ -9,14 +9,19 @@ const Index = () => {
   useEffect(() => {
     if (loading) return;
 
-    // Default to community dashboard
     if (roles.length === 0) {
-      navigate('/community-dashboard', { replace: true });
+      navigate('/auth', { replace: true });
       return;
     }
 
-    if (roles.includes('admin') || roles.includes('official')) {
+    if (roles.includes('admin')) {
+      navigate('/admin-dashboard', { replace: true });
+    } else if (roles.includes('health_official') || roles.includes('official')) {
       navigate('/official-dashboard', { replace: true });
+    } else if (roles.includes('clinic_staff')) {
+      navigate('/clinic-dashboard', { replace: true });
+    } else if (roles.includes('asha_worker') || roles.includes('volunteer') || roles.includes('citizen')) {
+      navigate('/community-dashboard', { replace: true });
     } else {
       navigate('/community-dashboard', { replace: true });
     }

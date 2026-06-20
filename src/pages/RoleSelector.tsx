@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type Role = 'admin' | 'official' | 'asha_worker' | 'citizen';
+type Role = 'admin' | 'official' | 'health_official' | 'asha_worker' | 'volunteer' | 'clinic_staff' | 'citizen';
 
 const RoleSelector = () => {
   const navigate = useNavigate();
@@ -70,8 +70,12 @@ const RoleSelector = () => {
         const userRole = existingRoles[0].role;
         toast.info(`You are already registered as ${userRole.replace('_', ' ')}`);
         // Redirect to appropriate dashboard based on locked role
-        if (userRole === 'admin' || userRole === 'official') {
+        if (userRole === 'admin') {
+          navigate('/admin-dashboard');
+        } else if (userRole === 'health_official' || userRole === 'official') {
           navigate('/official-dashboard');
+        } else if (userRole === 'clinic_staff') {
+          navigate('/clinic-dashboard');
         } else {
           navigate('/community-dashboard');
         }
@@ -96,8 +100,12 @@ const RoleSelector = () => {
 
       // Small delay for better UX
       setTimeout(() => {
-        if (role === 'admin' || role === 'official') {
+        if (role === 'admin') {
+          navigate('/admin-dashboard');
+        } else if (role === 'health_official' || role === 'official') {
           navigate('/official-dashboard');
+        } else if (role === 'clinic_staff') {
+          navigate('/clinic-dashboard');
         } else {
           navigate('/community-dashboard');
         }

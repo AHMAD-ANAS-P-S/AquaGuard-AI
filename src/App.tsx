@@ -66,6 +66,8 @@ const AppContent = () => {
         <Route path="/alert-escalation" element={user ? <AlertEscalation /> : <Navigate to="/auth" replace />} />
         <Route path="/community-dashboard" element={user ? <CommunityDashboard /> : <Navigate to="/auth" replace />} />
         <Route path="/official-dashboard" element={user ? <OfficialDashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/admin-dashboard" element={user ? <OfficialDashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/clinic-dashboard" element={user ? <OfficialDashboard /> : <Navigate to="/auth" replace />} />
         
         <Route path="/image-analysis" element={user ? <ImageAnalysis /> : <Navigate to="/auth" replace />} />
         <Route path="/export-reports" element={user ? <ExportReports /> : <Navigate to="/auth" replace />} />
