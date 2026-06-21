@@ -25,6 +25,12 @@ const MOCK_DISTRICTS = [
   { id: "d3", name: "Majuli", cases: 25, alerts: 0, resources: 20, risk: "low" },
   { id: "d4", name: "Silchar", cases: 110, alerts: 3, resources: 70, risk: "high" },
   { id: "d5", name: "Tezpur", cases: 54, alerts: 1, resources: 35, risk: "medium" },
+  { id: "d6", name: "Chennai", cases: 210, alerts: 5, resources: 90, risk: "high" },
+  { id: "d7", name: "Tiruvallur", cases: 85, alerts: 2, resources: 45, risk: "medium" },
+  { id: "d8", name: "Kanchipuram", cases: 65, alerts: 1, resources: 50, risk: "medium" },
+  { id: "d9", name: "Erode", cases: 30, alerts: 0, resources: 40, risk: "low" },
+  { id: "d10", name: "Vellore", cases: 42, alerts: 1, resources: 35, risk: "medium" },
+  { id: "d11", name: "Salem", cases: 15, alerts: 0, resources: 25, risk: "low" },
 ];
 
 const MOCK_VILLAGES = [
@@ -38,6 +44,11 @@ const MOCK_VILLAGES = [
   { id: "v8", districtId: "d3", name: "Garamur", population: 4900, waterSources: 2, cases: 9, riskScore: 22, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 18, predictedDisease: "None", mainWaterSource: "Hand Pump" },
   { id: "v9", districtId: "d4", name: "Silchar Ward 5", population: 18500, waterSources: 5, cases: 58, riskScore: 89, riskLevel: "high", alerts: 3, resourcesAssigned: 6, predictionScore: 94, predictedDisease: "Cholera", mainWaterSource: "Pond Water" },
   { id: "v10", districtId: "d5", name: "Tezpur Bazar", population: 14000, waterSources: 4, cases: 15, riskScore: 40, riskLevel: "medium", alerts: 0, resourcesAssigned: 2, predictionScore: 45, predictedDisease: "Dysentery", mainWaterSource: "Borewell Water" },
+  { id: "v11", districtId: "d7", name: "Karlambakkam", population: 6000, waterSources: 3, cases: 12, riskScore: 45, riskLevel: "medium", alerts: 1, resourcesAssigned: 2, predictionScore: 50, predictedDisease: "Diarrhea", mainWaterSource: "Borewell Water" },
+  { id: "v12", districtId: "d8", name: "Thiruper", population: 4500, waterSources: 2, cases: 5, riskScore: 25, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 20, predictedDisease: "None", mainWaterSource: "Community Handpump" },
+  { id: "v13", districtId: "d8", name: "Andhimanam", population: 5200, waterSources: 2, cases: 8, riskScore: 30, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 28, predictedDisease: "None", mainWaterSource: "Open Well" },
+  { id: "v14", districtId: "d8", name: "Pappankuzhi", population: 3800, waterSources: 1, cases: 2, riskScore: 15, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 12, predictedDisease: "None", mainWaterSource: "Hand Pump" },
+  { id: "v15", districtId: "d11", name: "Vengaivayal", population: 2900, waterSources: 1, cases: 14, riskScore: 65, riskLevel: "high", alerts: 1, resourcesAssigned: 2, predictionScore: 72, predictedDisease: "Typhoid", mainWaterSource: "Pond Water" },
 ];
 
 const MOCK_PREDICTIONS = [
