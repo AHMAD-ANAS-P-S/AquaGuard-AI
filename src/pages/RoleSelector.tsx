@@ -64,7 +64,7 @@ const RoleSelector = () => {
       const { data: existingRoles } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user.id);
+        .eq('id', user.id);
 
       if (existingRoles && existingRoles.length > 0) {
         const userRole = existingRoles[0].role;
@@ -84,7 +84,7 @@ const RoleSelector = () => {
 
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: user.id, role });
+        .insert({ id: user.id, email: user.email, role });
 
       if (error) {
         console.error('Role selection error:', error);

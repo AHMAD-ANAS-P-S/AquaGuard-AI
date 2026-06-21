@@ -59,7 +59,7 @@ const Auth = () => {
   };
 
   const checkExistingRole = async (userId: string): Promise<string | null> => {
-    const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId);
+    const { data, error } = await supabase.from('user_roles').select('role').eq('id', userId);
     if (error) {
       console.error('[Auth] Role lookup error:', error);
       throw new Error(error.message);

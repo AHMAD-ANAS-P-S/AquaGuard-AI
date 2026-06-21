@@ -29,7 +29,7 @@ export const useUserRole = () => {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user.id);
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -53,7 +53,7 @@ export const useUserRole = () => {
     try {
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: user.id, role: 'citizen' });
+        .insert({ id: user.id, email: user.email, role: 'citizen' });
 
       if (error) throw error;
       
