@@ -14,17 +14,7 @@ const Index = () => {
       return;
     }
 
-    if (roles.includes('admin')) {
-      navigate('/admin-dashboard', { replace: true });
-    } else if (roles.includes('health_official') || roles.includes('official')) {
-      navigate('/official-dashboard', { replace: true });
-    } else if (roles.includes('clinic_staff')) {
-      navigate('/clinic-dashboard', { replace: true });
-    } else if (roles.includes('asha_worker') || roles.includes('volunteer') || roles.includes('citizen')) {
-      navigate('/community-dashboard', { replace: true });
-    } else {
-      navigate('/community-dashboard', { replace: true });
-    }
+    navigate('/dashboard', { replace: true });
   }, [roles, loading, navigate]);
 
   // Always show a clean loading screen while we figure out where to go.

@@ -69,16 +69,7 @@ const RoleSelector = () => {
       if (existingRoles && existingRoles.length > 0) {
         const userRole = existingRoles[0].role;
         toast.info(`You are already registered as ${userRole.replace('_', ' ')}`);
-        // Redirect to appropriate dashboard based on locked role
-        if (userRole === 'admin') {
-          navigate('/admin-dashboard');
-        } else if (userRole === 'health_official' || userRole === 'official') {
-          navigate('/official-dashboard');
-        } else if (userRole === 'clinic_staff') {
-          navigate('/clinic-dashboard');
-        } else {
-          navigate('/community-dashboard');
-        }
+        navigate('/dashboard');
         return;
       }
 
@@ -100,15 +91,7 @@ const RoleSelector = () => {
 
       // Small delay for better UX
       setTimeout(() => {
-        if (role === 'admin') {
-          navigate('/admin-dashboard');
-        } else if (role === 'health_official' || role === 'official') {
-          navigate('/official-dashboard');
-        } else if (role === 'clinic_staff') {
-          navigate('/clinic-dashboard');
-        } else {
-          navigate('/community-dashboard');
-        }
+        navigate('/dashboard');
       }, 500);
     } catch (error: any) {
       console.error('Error selecting role:', error);

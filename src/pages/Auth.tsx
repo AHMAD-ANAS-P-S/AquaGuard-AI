@@ -138,25 +138,7 @@ const Auth = () => {
       try {
         const existingRole = await checkExistingRole(user.id);
         if (existingRole) {
-          switch (existingRole) {
-            case 'admin':
-              navigate('/admin-dashboard', { replace: true });
-              break;
-            case 'health_official':
-            case 'official':
-              navigate('/official-dashboard', { replace: true });
-              break;
-            case 'asha_worker':
-            case 'volunteer':
-            case 'citizen':
-              navigate('/community-dashboard', { replace: true });
-              break;
-            case 'clinic_staff':
-              navigate('/clinic-dashboard', { replace: true });
-              break;
-            default:
-              navigate('/community-dashboard', { replace: true });
-          }
+          navigate('/dashboard', { replace: true });
           return;
         } else {
           await supabase.auth.signOut();

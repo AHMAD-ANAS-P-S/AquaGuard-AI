@@ -22,6 +22,7 @@ import IoTMonitoring from "./pages/IoTMonitoring";
 import AlertEscalation from "./pages/AlertEscalation";
 import CommunityDashboard from "./pages/CommunityDashboard";
 import OfficialDashboard from "./pages/OfficialDashboard";
+import Dashboard from "./pages/Dashboard";
 
 import ImageAnalysis from "./pages/ImageAnalysis";
 import ExportReports from "./pages/ExportReports";
@@ -64,10 +65,11 @@ const AppContent = () => {
         <Route path="/awareness" element={user ? <Awareness /> : <Navigate to="/auth" replace />} />
         <Route path="/iot-monitoring" element={user ? <IoTMonitoring /> : <Navigate to="/auth" replace />} />
         <Route path="/alert-escalation" element={user ? <AlertEscalation /> : <Navigate to="/auth" replace />} />
-        <Route path="/community-dashboard" element={user ? <CommunityDashboard /> : <Navigate to="/auth" replace />} />
-        <Route path="/official-dashboard" element={user ? <OfficialDashboard /> : <Navigate to="/auth" replace />} />
-        <Route path="/admin-dashboard" element={user ? <OfficialDashboard /> : <Navigate to="/auth" replace />} />
-        <Route path="/clinic-dashboard" element={user ? <OfficialDashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/community-dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/official-dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/admin-dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/clinic-dashboard" element={<Navigate to="/dashboard" replace />} />
         
         <Route path="/image-analysis" element={user ? <ImageAnalysis /> : <Navigate to="/auth" replace />} />
         <Route path="/export-reports" element={user ? <ExportReports /> : <Navigate to="/auth" replace />} />

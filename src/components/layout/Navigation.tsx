@@ -32,10 +32,7 @@ export const Navigation = () => {
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   const getDashboardPath = () => {
-    if (roles.includes('admin')) return '/admin-dashboard';
-    if (roles.includes('clinic_staff')) return '/clinic-dashboard';
-    if (roles.includes('health_official') || roles.includes('official')) return '/official-dashboard';
-    return '/community-dashboard';
+    return '/dashboard';
   };
 
   const communityNavItems = [
