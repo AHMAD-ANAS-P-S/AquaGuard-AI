@@ -5,11 +5,13 @@ import { useAuth } from "./useAuth";
 export type UserRole = 'admin' | 'official' | 'health_official' | 'asha_worker' | 'volunteer' | 'clinic_staff';
 
 export const useUserRole = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
       setRoles([]);
       setLoading(false);
@@ -20,7 +22,7 @@ export const useUserRole = () => {
     // don't briefly see (loading=false, roles=[]) and redirect away.
     setLoading(true);
     loadRoles();
-  }, [user?.id]);
+  }, [user?.id, authLoading]);
 
   const loadRoles = async () => {
     if (!user) return;

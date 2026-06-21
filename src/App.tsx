@@ -23,7 +23,6 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import IoTMonitoring from "./pages/IoTMonitoring";
-import AlertEscalation from "./pages/AlertEscalation";
 import CommunityDashboard from "./pages/CommunityDashboard";
 import OfficialDashboard from "./pages/OfficialDashboard";
 import Dashboard from "./pages/Dashboard";
@@ -141,18 +140,7 @@ const AppContent = () => {
           } 
         />
         
-        <Route 
-          path="/alert-escalation" 
-          element={
-            user ? (
-              <RoleRoute allowedRoles={['admin', 'official', 'health_official']}>
-                <AlertEscalation />
-              </RoleRoute>
-            ) : (
-              <Navigate to="/auth" replace />
-            )
-          } 
-        />
+
         
         <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
         <Route path="/community-dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />

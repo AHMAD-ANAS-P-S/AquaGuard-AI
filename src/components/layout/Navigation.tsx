@@ -43,7 +43,6 @@ export const Navigation = () => {
       return [
         { path: "/admin-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
         { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
-        { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
         { path: "/iot-monitoring", label: t('nav.iotMonitoring'), icon: Activity },
         { path: "/reports", label: t('nav.reports'), icon: FileText },
         { path: "/map", label: t('nav.heatmap'), icon: Map },
@@ -55,7 +54,6 @@ export const Navigation = () => {
       return [
         { path: "/official-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
         { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
-        { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
         { path: "/reports", label: t('nav.reports'), icon: FileText },
         { path: "/map", label: t('nav.heatmap'), icon: Map },
         { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
