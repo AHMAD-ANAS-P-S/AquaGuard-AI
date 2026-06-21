@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Navigation } from "@/components/layout/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { GamificationProvider } from "@/hooks/useGamification";

@@ -36,31 +36,13 @@ export const useUserRole = () => {
       if (data && data.length > 0) {
         setRoles(data.map(r => r.role as UserRole));
       } else {
-        // Default role for new users
-        await assignDefaultRole();
+        setRoles([]);
       }
     } catch (error) {
       console.error('Error loading roles:', error);
       setRoles([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const assignDefaultRole = async () => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ id: user.id, email: user.email, role: 'volunteer' });
-
-      if (error) throw error;
-      
-      setRoles(['volunteer']);
-    } catch (error) {
-      console.error('Error assigning default role:', error);
-      setRoles([]);
     }
   };
 
