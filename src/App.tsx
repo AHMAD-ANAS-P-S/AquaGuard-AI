@@ -56,7 +56,7 @@ const RoleRoute = ({ children, allowedRoles }: { children: React.ReactNode; allo
 };
 
 const AppContent = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, validating } = useAuth();
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const AppContent = () => {
       {user && <GuidanceBot />}
       {user && <Navigation />}
       <Routes>
-        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
+        <Route path="/auth" element={user && !validating ? <Navigate to="/" replace /> : <Auth />} />
         <Route path="/" element={user ? <Index /> : <Navigate to="/auth" replace />} />
         <Route path="/reports" element={user ? <Reports /> : <Navigate to="/auth" replace />} />
         <Route path="/alerts" element={user ? <Alerts /> : <Navigate to="/auth" replace />} />

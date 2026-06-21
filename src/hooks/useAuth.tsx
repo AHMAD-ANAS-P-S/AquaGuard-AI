@@ -7,6 +7,9 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  // validating = true while Auth.tsx is still performing the post-login role check.
+  // During this window App.tsx must NOT redirect /auth → / even though user is set.
+  const [validating, setValidating] = useState(false);
   const navigate = useNavigate();
 
   // Track whether the initial session has already been set via getSession()
@@ -47,5 +50,5 @@ export const useAuth = () => {
     navigate("/auth");
   };
 
-  return { user, session, loading, signOut };
+  return { user, session, loading, validating, setValidating, signOut };
 };

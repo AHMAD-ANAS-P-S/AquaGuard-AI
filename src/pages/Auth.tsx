@@ -1,11 +1,12 @@
 // Trigger rebuild for logo update
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Shield, Eye, EyeOff, ArrowLeft, Droplets, Wifi, Activity, Globe } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useTranslation } from "react-i18next";
@@ -21,6 +22,7 @@ const languages = [
 const Auth = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { setValidating } = useAuth();
   const { toast, dismiss } = useToast();
   const [loading, setLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>('credentials');
@@ -30,6 +32,11 @@ const Auth = () => {
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+
+  // Sync html[lang] attribute so CSS selectors like html[lang="ta"] work
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
 
   useEffect(() => {
     if (resendTimer > 0) {
@@ -80,22 +87,31 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Tell App.tsx we are validating — suppress the /auth → / redirect
+    setValidating(true);
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
       });
+
       if (error) {
+        // Wrong credentials — Supabase never created a session, no redirect risk
+        setValidating(false);
         toast({ variant: "destructive", title: "Access Denied", description: error.message });
         setLoading(false);
         return;
       }
+
       if (data.user) {
         let existingRole: string | null = null;
         try {
           existingRole = await checkExistingRole(data.user.id);
         } catch (err: any) {
           await supabase.auth.signOut();
+          setValidating(false);
           toast({
             variant: "destructive",
             title: "Security Check Failed",
@@ -107,6 +123,7 @@ const Auth = () => {
 
         if (!existingRole) {
           await supabase.auth.signOut();
+          setValidating(false);
           toast({
             variant: "destructive",
             title: "Access Denied",
@@ -116,11 +133,14 @@ const Auth = () => {
           return;
         }
 
+        // Role verified — allow navigation
+        setValidating(false);
         navigate('/dashboard', { replace: true });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
       console.error('[Auth] handleLogin error:', msg);
+      setValidating(false);
       toast({ variant: "destructive", title: "Login Error", description: msg });
     }
     setLoading(false);
@@ -247,7 +267,7 @@ const Auth = () => {
 
   // ── Login Screen ──
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-[hsl(210,30%,8%)]">
+    <div className="auth-page min-h-screen flex relative overflow-hidden bg-[hsl(210,30%,8%)]">
       {/* Animated background */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full opacity-30"
@@ -259,10 +279,10 @@ const Auth = () => {
         {[...Array(6)].map((_, i) => (
           <div key={i} className="absolute rounded-full opacity-20 animate-pulse"
             style={{
-              width: `${Math.random() * 60 + 20}px`,
-              height: `${Math.random() * 60 + 20}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: `${[40, 60, 30, 50, 35, 45][i]}px`,
+              height: `${[40, 60, 30, 50, 35, 45][i]}px`,
+              left: `${[10, 25, 50, 70, 85, 60][i]}%`,
+              top: `${[20, 70, 40, 15, 60, 80][i]}%`,
               background: i % 2 === 0 ? 'hsl(200,85%,55%)' : 'hsl(155,65%,50%)',
               animationDelay: `${i * 0.5}s`,
               animationDuration: `${3 + i}s`,
@@ -271,8 +291,9 @@ const Auth = () => {
       </div>
 
       {/* LEFT PANEL — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative z-10">
-        <div className="max-w-lg text-center">
+      <div className="auth-left-panel hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative z-10">
+        <div className="auth-brand-content max-w-lg text-center w-full">
+          {/* Logo */}
           <div className="relative inline-block mb-8">
             <img
               src="/logo.png"
@@ -282,37 +303,40 @@ const Auth = () => {
             />
           </div>
 
-          <h1 className="text-5xl font-black text-white mb-3 tracking-tight">
+          {/* Hero Title */}
+          <h1 className="auth-hero-title font-black text-white mb-3 tracking-tight">
             {i18n.language === 'ta' ? t('auth.appTitle') : (<>Aqua<span style={{ color: 'hsl(200,85%,60%)' }}>Guard</span> AI</>)}
           </h1>
-          <p className="text-xl text-white/70 mb-8 leading-relaxed">
+          <p className="auth-subtitle text-white/70 mb-8 leading-relaxed">
             {t('auth.subtitle')}
           </p>
 
-          <div className="flex flex-wrap gap-3 justify-center mb-8">
+          {/* Feature Badges */}
+          <div className="auth-feature-badges flex flex-wrap gap-3 justify-center mb-8">
             {[
-              { icon: <Activity className="w-4 h-4" />, text: t('auth.realTimeIot') },
-              { icon: <Shield className="w-4 h-4" />, text: t('auth.aiPrediction') },
-              { icon: <Wifi className="w-4 h-4" />, text: t('auth.forecast714') },
+              { icon: <Activity className="w-4 h-4 flex-shrink-0" />, text: t('auth.realTimeIot') },
+              { icon: <Shield className="w-4 h-4 flex-shrink-0" />, text: t('auth.aiPrediction') },
+              { icon: <Wifi className="w-4 h-4 flex-shrink-0" />, text: t('auth.forecast714') },
             ].map((f, i) => (
-              <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
+              <div key={i} className="auth-feature-badge flex items-center justify-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
                 style={{ background: 'hsl(200,85%,55% / 0.15)', border: '1px solid hsl(200,85%,55% / 0.3)' }}>
                 <span style={{ color: 'hsl(200,85%,65%)' }}>{f.icon}</span>
-                <span className="text-white/80 text-sm font-medium">{f.text}</span>
+                <span className="text-white/80 text-sm font-medium leading-tight">{f.text}</span>
               </div>
             ))}
           </div>
 
+          {/* Role Cards */}
           <div className="grid grid-cols-2 gap-4 text-center">
             {[
               { emoji: "🌱", role: t('auth.volunteerAsha'), desc: t('auth.reportStayInformed') },
               { emoji: "🏥", role: t('auth.healthOfficial'), desc: t('auth.fullDashboardAccess') },
             ].map((r, i) => (
-              <div key={i} className="p-4 rounded-2xl backdrop-blur-sm"
+              <div key={i} className="auth-role-card p-4 rounded-2xl backdrop-blur-sm flex flex-col items-center justify-start"
                 style={{ background: 'hsl(200,85%,55% / 0.08)', border: '1px solid hsl(200,85%,55% / 0.2)' }}>
-                <div className="text-3xl mb-2">{r.emoji}</div>
-                <p className="text-white text-sm font-semibold">{r.role}</p>
-                <p className="text-white/40 text-xs">{r.desc}</p>
+                <div className="text-3xl mb-2 flex-shrink-0">{r.emoji}</div>
+                <p className="text-white text-sm font-semibold leading-tight mb-1">{r.role}</p>
+                <p className="text-white/40 text-xs leading-tight">{r.desc}</p>
               </div>
             ))}
           </div>
@@ -321,7 +345,7 @@ const Auth = () => {
 
       {/* RIGHT PANEL — Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-md">
+        <div className="auth-login-panel w-full">
           {/* Mobile header */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center mb-3">
@@ -330,7 +354,7 @@ const Auth = () => {
             <h1 className="text-3xl font-black text-white">{i18n.language === 'ta' ? t('auth.appTitle') : 'AquaGuard AI'}</h1>
           </div>
 
-          <div className="backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
+          <div className="auth-login-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
             style={{ background: 'hsl(210,25%,12% / 0.8)', border: '1px solid hsl(200,85%,55% / 0.2)' }}>
 
             {/* Language switcher */}
@@ -400,12 +424,10 @@ const Auth = () => {
                 </div>
               </div>
 
-
-
               <Button
                 id="login-submit"
                 type="submit"
-                className="w-full h-12 rounded-xl text-base font-bold border-0"
+                className="auth-login-btn w-full h-12 rounded-xl font-bold border-0"
                 disabled={loading}
                 style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }}
               >
