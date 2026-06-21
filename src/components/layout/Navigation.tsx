@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, FileText, Bell, Map, Book, Menu, User, LogOut, Settings, Activity, AlertCircle, Shield, Users, Globe, Microscope, Download } from "lucide-react";
+import { LayoutDashboard, FileText, Bell, Map, Book, Menu, User, UserCheck, LogOut, Settings, Activity, AlertCircle, Shield, Users, Globe, Microscope, Download } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -15,6 +15,7 @@ const languages = [
   { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
   { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
   { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
 ];
 
 export const Navigation = () => {
@@ -26,7 +27,9 @@ export const Navigation = () => {
 
   const changeLanguage = (langCode: string) => {
     i18n.changeLanguage(langCode);
-    localStorage.setItem('i18nextLng', langCode);
+    if (user) {
+      localStorage.setItem(`aquaguard_lang_${user.id}`, langCode);
+    }
   };
 
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
@@ -35,27 +38,54 @@ export const Navigation = () => {
     return '/dashboard';
   };
 
-  const communityNavItems = [
-    { path: getDashboardPath(), label: t('nav.dashboard'), icon: LayoutDashboard },
-    { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
-    { path: "/alerts", label: t('nav.alerts'), icon: Bell },
-    { path: "/map", label: t('nav.mapView'), icon: Map },
-    { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
-    { path: "/awareness", label: t('nav.learnEarn'), icon: Book },
-  ];
+  const getNavItems = () => {
+    if (roles.includes('admin')) {
+      return [
+        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
+        { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
+        { path: "/iot-monitoring", label: t('nav.iotMonitoring'), icon: Activity },
+        { path: "/reports", label: t('nav.reports'), icon: FileText },
+        { path: "/map", label: t('nav.heatmap'), icon: Map },
+        { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
+        { path: "/export-reports", label: t('nav.exportReports'), icon: Download },
+      ];
+    }
+    if (roles.includes('official') || roles.includes('health_official')) {
+      return [
+        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
+        { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
+        { path: "/reports", label: t('nav.reports'), icon: FileText },
+        { path: "/map", label: t('nav.heatmap'), icon: Map },
+        { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
+      ];
+    }
+    if (roles.includes('clinic_staff')) {
+      return [
+        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
+        { path: "/map", label: t('nav.mapView'), icon: Map },
+        { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
+      ];
+    }
+    if (roles.includes('asha_worker')) {
+      return [
+        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
+        { path: "/alerts", label: t('nav.alerts'), icon: Bell },
+      ];
+    }
+    // Default to Volunteer
+    return [
+      { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+      { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
+      { path: "/map", label: t('nav.mapView'), icon: Map },
+      { path: "/awareness", label: t('nav.learnEarn'), icon: Book },
+    ];
+  };
 
-  const officialNavItems = [
-    { path: getDashboardPath(), label: t('nav.dashboard'), icon: LayoutDashboard },
-    { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
-    { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
-    { path: "/iot-monitoring", label: t('nav.iotMonitoring'), icon: Activity },
-    { path: "/reports", label: t('nav.reports'), icon: FileText },
-    { path: "/map", label: t('nav.heatmap'), icon: Map },
-    { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
-    { path: "/export-reports", label: t('nav.exportReports'), icon: Download },
-  ];
-
-  const navItems = isOfficial() ? officialNavItems : communityNavItems;
+  const navItems = getNavItems();
 
   if (authLoading || roleLoading) {
     return (
@@ -119,13 +149,17 @@ export const Navigation = () => {
 
   const getRoleLabel = () => {
     if (roles.includes('admin')) return t('roles.administrator');
-    if (roles.includes('official')) return t('roles.healthOfficial');
-    return t('roles.communityMember');
+    if (roles.includes('official') || roles.includes('health_official')) return t('roles.healthOfficial');
+    if (roles.includes('clinic_staff')) return t('roles.clinicalStaff');
+    if (roles.includes('asha_worker')) return t('roles.ashaWorker');
+    return t('roles.volunteer');
   };
 
   const getRoleIcon = () => {
     if (roles.includes('admin')) return <Shield className="h-3 w-3" />;
-    if (roles.includes('official')) return <Users className="h-3 w-3" />;
+    if (roles.includes('official') || roles.includes('health_official')) return <Users className="h-3 w-3" />;
+    if (roles.includes('clinic_staff')) return <Activity className="h-3 w-3" />;
+    if (roles.includes('asha_worker')) return <UserCheck className="h-3 w-3" />;
     return <User className="h-3 w-3" />;
   };
 

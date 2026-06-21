@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Shield, Users, UserCheck, User, LogOut, HelpCircle } from "lucide-react";
+import { Shield, Users, UserCheck, User, LogOut, HelpCircle, Activity, Globe } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
@@ -15,37 +15,51 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTranslation } from "react-i18next";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-type Role = 'admin' | 'official' | 'health_official' | 'asha_worker' | 'volunteer' | 'clinic_staff' | 'citizen';
+type Role = 'admin' | 'official' | 'asha_worker' | 'volunteer' | 'clinic_staff';
 
 const RoleSelector = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [loading, setLoading] = useState(false);
 
+  const languages = [
+    { code: 'en', name: 'English', nativeName: 'English' },
+    { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+  ];
+
   const roles: { value: Role; label: string; description: string; icon: any }[] = [
     {
-      value: 'citizen',
-      label: 'Community Member',
-      description: 'Report health issues and access safety information',
+      value: 'volunteer',
+      label: t('roles.volunteer'),
+      description: t('rolesDesc.volunteer'),
       icon: User,
     },
     {
       value: 'asha_worker',
-      label: 'ASHA Worker',
-      description: 'Submit field reports and assist community members',
+      label: t('roles.ashaWorker'),
+      description: t('rolesDesc.ashaWorker'),
       icon: UserCheck,
     },
     {
       value: 'official',
-      label: 'Health Official',
-      description: 'Monitor data, manage alerts, and coordinate response',
+      label: t('roles.healthOfficial'),
+      description: t('rolesDesc.healthOfficial'),
       icon: Users,
     },
     {
+      value: 'clinic_staff',
+      label: t('roles.clinicalStaff'),
+      description: t('rolesDesc.clinicalStaff'),
+      icon: Activity,
+    },
+    {
       value: 'admin',
-      label: 'System Administrator',
-      description: 'Full system access and user management',
+      label: t('roles.administrator'),
+      description: t('rolesDesc.administrator'),
       icon: Shield,
     },
   ];
@@ -105,11 +119,31 @@ const RoleSelector = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         <div className="flex justify-end gap-2 mb-6">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <Globe className="h-4 w-4" />
+                <span>{languages.find(l => l.code === i18n.language)?.nativeName || "English"}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {languages.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => i18n.changeLanguage(lang.code)}
+                  className="cursor-pointer"
+                >
+                  <span>{lang.nativeName}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <HelpCircle className="w-4 h-4 mr-2" />
-                How to Use
+                {t('common.howToUse', 'How to Use')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh]">
@@ -128,7 +162,7 @@ const RoleSelector = () => {
                       <li><strong>Administrator:</strong> Full system access for managing officials and system settings</li>
                       <li><strong>Health Official:</strong> Monitor data, manage alerts, view analytics and heatmaps</li>
                       <li><strong>ASHA Worker:</strong> Report issues, receive alerts, educate community</li>
-                      <li><strong>Community Member:</strong> Report health symptoms, view local risk status</li>
+                      <li><strong>Volunteer:</strong> Report local health issues, view safety maps, and earn certs</li>
                     </ul>
                   </div>
 
@@ -196,7 +230,7 @@ const RoleSelector = () => {
                     <p className="text-sm text-muted-foreground mb-2">When Wi-Fi is unavailable:</p>
                     <ul className="space-y-2 text-sm">
                       <li>ESP32 uses SIM800L GSM module to send SMS</li>
-                      <li>Community members can send SMS reports to gateway number</li>
+                      <li>Field workers can send SMS reports to gateway number</li>
                       <li>System automatically processes and logs SMS data</li>
                     </ul>
                   </div>
@@ -216,13 +250,13 @@ const RoleSelector = () => {
           </Dialog>
           <Button variant="destructive" size="sm" onClick={signOut}>
             <LogOut className="w-4 h-4 mr-2" />
-            Logout
+            {t('logout')}
           </Button>
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Welcome to AquaGuard AI</h1>
-          <p className="text-muted-foreground">Select your role to get started</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">{t('welcomeRoleSelector', 'Welcome to AquaGuard AI')}</h1>
+          <p className="text-muted-foreground">{t('selectRoleToStart', 'Select your role to get started')}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -251,10 +285,10 @@ const RoleSelector = () => {
                     {loading ? (
                       <span className="flex items-center gap-2">
                         <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                        Selecting...
+                        {t('selecting', 'Selecting...')}
                       </span>
                     ) : (
-                      'Select Role'
+                      t('selectRole', 'Select Role')
                     )}
                   </Button>
                 </div>
@@ -264,7 +298,7 @@ const RoleSelector = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Don't see your role? Contact your administrator for assistance.
+          {t('dontSeeRole', "Don't see your role? Contact your administrator for assistance.")}
         </p>
       </div>
     </div>

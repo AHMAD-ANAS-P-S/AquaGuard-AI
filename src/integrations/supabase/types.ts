@@ -234,6 +234,27 @@ export type Database = {
           },
         ]
       }
+      districts: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          state: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          state?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          state?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           category: string
@@ -628,21 +649,21 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string | null
+          email: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
-          user_id: string
         }
         Insert: {
           created_at?: string | null
-          id?: string
+          email?: string | null
+          id: string
           role: Database["public"]["Enums"]["app_role"]
-          user_id: string
         }
         Update: {
           created_at?: string | null
+          email?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
         }
         Relationships: []
       }
@@ -650,6 +671,7 @@ export type Database = {
         Row: {
           created_at: string | null
           district: string | null
+          district_id: string | null
           id: string
           last_updated: string | null
           latitude: number | null
@@ -663,6 +685,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           district?: string | null
+          district_id?: string | null
           id?: string
           last_updated?: string | null
           latitude?: number | null
@@ -676,6 +699,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           district?: string | null
+          district_id?: string | null
           id?: string
           last_updated?: string | null
           latitude?: number | null
@@ -686,7 +710,15 @@ export type Database = {
           risk_score?: number | null
           state?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "villages_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       water_quality_readings: {
         Row: {
@@ -766,7 +798,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "official" | "asha_worker" | "citizen"
+      app_role: "admin" | "official" | "asha_worker" | "volunteer" | "clinic_staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -894,7 +926,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "official", "asha_worker", "citizen"],
+      app_role: ["admin", "official", "asha_worker", "volunteer", "clinic_staff"],
     },
   },
 } as const

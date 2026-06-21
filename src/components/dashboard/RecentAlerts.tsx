@@ -29,8 +29,42 @@ const getSeverityColor = (severity: string) => {
   }
 };
 
+const mockAlerts: Alert[] = [
+  {
+    id: "a1",
+    title: "High Turbidity Alert",
+    type: "Water Quality",
+    severity: "critical",
+    status: "active",
+    message: "Water sensor #3 in Silchar Ward 5 detected turbidity at 12.0 NTU (Safe limit is 5 NTU).",
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    villages: { name: "Silchar Ward 5" }
+  },
+  {
+    id: "a2",
+    title: "Gastrointestinal Outbreak Warning",
+    type: "Health Report",
+    severity: "high",
+    status: "active",
+    message: "ASHA worker reported 7 active cases of severe diarrhea and vomiting within 24 hours.",
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+    villages: { name: "Dibrugarh Town" }
+  },
+  {
+    id: "a3",
+    title: "Acidic pH Level warning",
+    type: "Water Quality",
+    severity: "medium",
+    status: "active",
+    message: "Water sensor #2 in Mariani Well detected pH at 6.1, indicating elevated acidity.",
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    villages: { name: "Mariani" }
+  }
+];
+
 export const RecentAlerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -43,7 +77,13 @@ export const RecentAlerts = () => {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      if (data) setAlerts(data as any);
+      if (data && data.length > 0) {
+        setAlerts(data as any);
+        setIsDemo(false);
+      } else {
+        setAlerts(mockAlerts);
+        setIsDemo(true);
+      }
     };
 
     fetchAlerts();
@@ -63,7 +103,14 @@ export const RecentAlerts = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Recent Alerts</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-foreground">Recent Alerts</h3>
+              {isDemo && (
+                <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/20">
+                  Demo Data
+                </Badge>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">Real-time health warnings</p>
           </div>
           <Bell className="w-5 h-5 text-primary" />

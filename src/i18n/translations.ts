@@ -68,9 +68,17 @@ export const translations = {
       // Roles
       roles: {
         administrator: "Administrator",
-        healthOfficial: "Health Official",
+        healthOfficial: "Health Officer",
         ashaWorker: "ASHA Worker",
-        communityMember: "Community Member",
+        volunteer: "Volunteer",
+        clinicalStaff: "Clinical Staff",
+      },
+      rolesDesc: {
+        volunteer: "Report local health issues, view safety maps, and earn certs",
+        ashaWorker: "Submit field health reports and receive regional outbreak alerts",
+        healthOfficial: "Monitor sanitary data, manage escalations, and coordinate responses",
+        clinicalStaff: "Log patient cases, view diagnostic stats, and use image analysis",
+        administrator: "Full system configuration, IoT parameters, and user roles management",
       },
       
       // Common UI
@@ -133,6 +141,40 @@ export const translations = {
       installApp: "Install App",
       installPrompt: "Install AquaGuard AI for offline access and instant alerts",
       later: "Later",
+
+      // Auth (Login / OTP)
+      auth: {
+        verifyIdentity: "Verify Identity",
+        mfaSent: "MFA code sent to",
+        verifying: "Verifying...",
+        verifyAccess: "Verify & Access",
+        resendIn: "Resend in {{seconds}}s",
+        resendCode: "Resend Code",
+        backToLogin: "Back to Login",
+        welcomeBack: "Welcome back",
+        signInToAccount: "Sign in to your AquaGuard AI account",
+        emailAddress: "Email Address",
+        emailPlaceholder: "official@aquaguard.gov",
+        password: "Password",
+        passwordPlaceholder: "Enter your password",
+        otpRequired: "OTP verification required after login",
+        authenticating: "Authenticating...",
+        secureLogin: "Secure Login",
+        securedByMfa: "Secured by Government-Grade MFA • AquaGuard AI v2.0",
+        realTimeIot: "Real-Time IoT",
+        aiPrediction: "AI Prediction",
+        forecast714: "7-14 Day Forecast",
+        volunteerAsha: "Volunteer / ASHA",
+        reportStayInformed: "Report & stay informed",
+        healthOfficial: "Health Official",
+        fullDashboardAccess: "Full dashboard access"
+      },
+      welcomeRoleSelector: "Welcome to AquaGuard AI",
+      selectRoleToStart: "Select your role to get started",
+      selecting: "Selecting...",
+      selectRole: "Select Role",
+      dontSeeRole: "Don't see your role? Contact your administrator for assistance.",
+      analyzing: "Analyzing...",
     }
   },
   hi: { translation: {
@@ -206,7 +248,8 @@ export const translations = {
         administrator: "प्रशासक",
         healthOfficial: "स्वास्थ्य अधिकारी",
         ashaWorker: "आशा कार्यकर्ता",
-        communityMember: "समुदाय सदस्य",
+        volunteer: "स्वयंसेवक",
+        clinicalStaff: "नैदानिक कर्मचारी",
       },
       
       // Common UI
@@ -342,7 +385,8 @@ export const translations = {
         administrator: "প্ৰশাসক",
         healthOfficial: "স্বাস্থ্য বিষয়া",
         ashaWorker: "আশা কৰ্মী",
-        communityMember: "সম্প্ৰদায়ৰ সদস্য",
+        volunteer: "স্বেচ্ছাসেৱক",
+        clinicalStaff: "ক্লিনিক কৰ্মী",
       },
       
       // Common UI
@@ -478,7 +522,8 @@ export const translations = {
         administrator: "প্রশাসক",
         healthOfficial: "স্বাস্থ্য কর্মকর্তা",
         ashaWorker: "আশা কর্মী",
-        communityMember: "সম্প্রদায়ের সদস্য",
+        volunteer: "স্বেচ্ছাসেবক",
+        clinicalStaff: "ক্লিনিকাল স্টাফ",
       },
       
       // Common UI
@@ -541,6 +586,184 @@ export const translations = {
       installApp: "অ্যাপ ইনস্টল করুন",
       installPrompt: "অফলাইন অ্যাক্সেস এবং তাৎক্ষণিক সতর্কতার জন্য AquaGuard AI ইনস্টল করুন",
       later: "পরে",
+    }
+  },
+  ta: { translation: {
+      // Additional Nav
+      'nav.imageAnalysis': 'பட பகுப்பாய்வு',
+      'nav.exportReports': 'அறிக்கைகளை ஏற்றுமதி செய்க',
+
+      // Added
+      stayInformed: 'விழிப்புடன் இருங்கள் • சிக்கல்களைப் புகாரளிக்கவும் • உங்கள் சமூகத்தைப் பாதுகாக்கவும்',
+      casesToday: 'இன்றைய பாதிப்புகள்',
+      riskLevel: 'ஆபத்து நிலை',
+      myArea: 'எனது பகுதி சுகாதார நிலை',
+      highRisk: 'அதிக ஆபத்து',
+      riskIndex: 'ஆபத்து குறியீடு /100',
+      reportDesc: 'சுகாதாரம் / நீர் / அவசரநிலை',
+      activeNow: 'இப்போது செயலில் உள்ளது',
+      riskZones: 'உங்களுக்கு அருகிலுள்ள ஆபத்து மண்டலங்கள்',
+      uploadWater: 'நீர் புகைப்படங்களை பதிவேற்றவும்',
+      quizzes: 'வினாடி வினாக்கள், புள்ளிகள் & சான்றிதழ்கள்',
+      voiceReport: 'குரல் அறிக்கை',
+      voiceDesc: 'உள்ளூர் மொழியில் பேசுங்கள்',
+      guideBot: 'பயன்பாட்டு வழிகாட்டி போட்',
+      myReports: 'எனது சமீபத்திய அறிக்கைகள்',
+      noReports: 'இன்னும் அறிக்கைகள் இல்லை — முதலில் புகாரளிக்கவும்!',
+      imageAnalysisTitle: 'பட பகுப்பாய்வு',
+      imageAnalysisSub: 'செயற்கை நுண்ணறிவு பகுப்பாய்விற்காக நீர் நிலை அல்லது நுண்ணோக்கி நோய்க்கிருமி படங்களை பதிவேற்றவும்',
+      imageType: 'பட வகை',
+      waterBody: 'நீர் நிலை (ஏரி, ஆறு, குளம்)',
+      microscopic: 'நுண்ணோக்கி நோய்க்கிருமி',
+      uploadPrompt: 'பதிவேற்ற அல்லது புகைப்படம் எடுக்க கிளிக் செய்யவும்',
+      supports: 'JPG, PNG, WEBP ஆகியவற்றை ஆதரிக்கிறது',
+      notes: 'குறிப்புகள் (விருப்பத்தேர்வு)',
+      describe: 'ஏதேனும் அவதானிப்புகளை விவரிக்கவும்...',
+      analyzeBtn: 'படத்தை பகுப்பாய்வு செய்க',
+      results: 'பகுப்பாய்வு முடிவுகள்',
+      uploadFirst: 'முடிவுகளைக் காண ஒரு படத்தை பதிவேற்றி, பகுப்பாய்வு செய்க என்பதைக் கிளிக் செய்யவும்',
+
+      // Navigation
+      dashboard: "டாஷ்போர்டு",
+      reports: "அறிக்கைகள்",
+      alerts: "எச்சரிக்கைகள்",
+      map: "வரைபடம்",
+      awareness: "விழிப்புணர்வு",
+      profile: "சுயவிவரம்",
+      logout: "வெளியேறு",
+      
+      // Common
+      loading: "ஏற்றப்படுகிறது...",
+      error: "பிழை",
+      success: "வெற்றி",
+      cancel: "ரத்துசெய்",
+      save: "சேமி",
+      close: "மூடு",
+      
+      // Nav items
+      nav: {
+        dashboard: "டாஷ்போர்டு",
+        reportIssue: "பிரச்சனையைப் புகாரளிக்கவும்",
+        alerts: "எச்சரிக்கைகள்",
+        mapView: "வரைபடக் காட்சி",
+        learnEarn: "கற்றுக்கொண்டு சம்பாதிக்கவும்",
+        manageAlerts: "எச்சரிக்கைகளை நிர்வகிக்கவும்",
+        escalation: "தீவிரம் உயர்த்துதல்",
+        iotMonitoring: "IoT கண்காணிப்பு",
+        reports: "அறிக்கைகள்",
+        heatmap: "வெப்ப வரைபடம்",
+      },
+      
+      // Roles
+      roles: {
+        administrator: "நிர்வாகி",
+        healthOfficial: "சுகாதார அதிகாரி",
+        ashaWorker: "ஆஷா பணியாளர்",
+        volunteer: "தன்னார்வலர்",
+        clinicalStaff: "மருத்துவ ஊழியர்கள்",
+      },
+      rolesDesc: {
+        volunteer: "உள்ளூர் சுகாதாரப் பிரச்சினைகளைப் புகாரளிக்கவும், பாதுகாப்பு வரைபடங்களைப் பார்க்கவும் மற்றும் சான்றிதழ்களைப் பெறவும்",
+        ashaWorker: "கள சுகாதார அறிக்கைகளைச் சமர்ப்பித்து, பிராந்திய தொற்று எச்சரிக்கைகளைப் பெறவும்",
+        healthOfficial: "சுகாதாரத் தரவைக் கண்காணிக்கவும், தீவிரத்தை நிர்வகிக்கவும் மற்றும் பதில்களை ஒருங்கிணைக்கவும்",
+        clinicalStaff: "நோயாளியின் விவரங்களைப்பதிவு செய்யவும், நோய் கண்டறிதல் புள்ளிவிவரங்களைப் பார்க்கவும், பட பகுப்பாய்வைப் பயன்படுத்தவும்",
+        administrator: "முழு கணினி கட்டமைப்பு, IoT அளவுருக்கள் மற்றும் பயனர் பாத்திரங்கள் மேலாண்மை",
+      },
+      
+      // Common UI
+      common: {
+        selectLanguage: "மொழியைத் தேர்ந்தெடுக்கவும்",
+        myAccount: "எனது கணக்கு",
+        profile: "சுயவிவரம்",
+        settings: "அமைப்புகள்",
+        logout: "வெளியேறு",
+        healthMonitoring: "சுகாதார கண்காணிப்பு",
+      },
+      
+      // Dashboard
+      welcomeBack: "மீண்டும் வருக",
+      activeAlerts: "செயலில் உள்ள எச்சரிக்கைகள்",
+      totalVillages: "மொத்த கிராமங்கள்",
+      totalReports: "மொத்த அறிக்கைகள்",
+      activeSensors: "செயலில் உள்ள சென்சார்கள்",
+      recentAlerts: "சமீபத்திய எச்சரிக்கைகள்",
+      waterQualityTrends: "நீர் தரப் போக்குகள்",
+      riskMap: "ஆபத்து வரைபடம்",
+      healthStatistics: "சுகாதார புள்ளிவிவரங்கள்",
+      
+      // Voice Assistant
+      voiceAssistant: "குரல் உதவியாளர்",
+      startListening: "கேட்கத் தொடங்கு",
+      stopListening: "கேட்பதை நிறுத்து",
+      listening: "கேட்கிறது...",
+      processing: "செயலாக்கப்படுகிறது...",
+      speaking: "பேசுகிறது...",
+      
+      // Alerts
+      critical: "மிகவும் ஆபத்தானது",
+      high: "அதிக ஆபத்து",
+      medium: "நடுத்தர ஆபத்து",
+      low: "குறைந்த ஆபத்து",
+      noAlerts: "தற்போது எச்சரிக்கைகள் எதுவும் இல்லை",
+      
+      // Water Quality
+      phLevel: "pH அளவு",
+      tds: "TDS அளவு",
+      turbidity: "கலங்கல் தன்மை",
+      temperature: "வெப்பநிலை",
+      
+      // Gamification
+      gamification: {
+        totalPoints: "மொத்த புள்ளிகள்",
+        streakDays: "தொடர் நாட்கள்",
+        badges: "சின்னங்கள்",
+        leaderboard: "மதிப்பீட்டுப் பட்டியல்",
+        level: "நிலை",
+        quizzesCompleted: "முடிவுற்ற வினாடி வினாக்கள்",
+        yourProgress: "உங்களது முன்னேற்றம்",
+        pointsEarned: "பெற்ற புள்ளிகள்",
+        newBadge: "புதிய சின்னம்!",
+        levelUp: "நிலை உயர்வு!",
+      },
+      
+      // PWA
+      installApp: "பயன்பாட்டை நிறுவு",
+      installPrompt: "ஆஃப்லைன் அணுகல் மற்றும் உடனடி எச்சரிக்கைகளுக்கு அக்வாகார்டு AI-ஐ நிறுவவும்",
+      later: "பிறகு",
+
+      // Auth (Login / OTP)
+      auth: {
+        verifyIdentity: "அடையாளத்தை சரிபார்",
+        mfaSent: "MFA குறியீடு அனுப்பப்பட்டது",
+        verifying: "சரிபார்க்கப்படுகிறது...",
+        verifyAccess: "சரிபார்த்து அணுகவும்",
+        resendIn: "{{seconds}} வினாடிகளில் மீண்டும் அனுப்பவும்",
+        resendCode: "குறியீட்டை மீண்டும் அனுப்புக",
+        backToLogin: "உள்நுழைவுக்குத் திரும்பு",
+        welcomeBack: "மீண்டும் வருக",
+        signInToAccount: "உங்கள் அக்வாகார்டு AI கணக்கில் உள்நுழைக",
+        emailAddress: "மின்னஞ்சல் முகவரி",
+        emailPlaceholder: "official@aquaguard.gov",
+        password: "கடவுச்சொல்",
+        passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+        otpRequired: "உள்நுழைந்த பிறகு OTP சரிபார்ப்பு தேவை",
+        authenticating: "அடையாளம் சரிபார்க்கப்படுகிறது...",
+        secureLogin: "பாதுகாப்பான உள்நுழைவு",
+        securedByMfa: "அரசு-தர MFA மூலம் பாதுகாக்கப்பட்டது • அக்வாகார்டு AI v2.0",
+        realTimeIot: "நிகழ்நேர IoT",
+        aiPrediction: "AI கணிப்பு",
+        forecast714: "7-14 நாள் முன்கணிப்பு",
+        volunteerAsha: "தன்னார்வலர் / ஆஷா",
+        reportStayInformed: "புகாரளித்து விழிப்புடன் இருங்கள்",
+        healthOfficial: "சுகாதார அதிகாரி",
+        fullDashboardAccess: "முழு டாஷ்போர்டு அணுகல்"
+      },
+      welcomeRoleSelector: "அக்வாகார்டு AI-க்கு வரவேற்கிறோம்",
+      selectRoleToStart: "தொடங்குவதற்கு உங்கள் பாத்திரத்தைத் தேர்ந்தெடுக்கவும்",
+      selecting: "தேர்ந்தெடுக்கப்படுகிறது...",
+      selectRole: "பாத்திரத்தைத் தேர்ந்தெடு",
+      dontSeeRole: "உங்கள் பாத்திரம் இல்லையா? உதவிக்கு உங்கள் நிர்வாகியைத் தொடர்பு கொள்ளவும்.",
+      analyzing: "பகுப்பாய்வு செய்யப்படுகிறது...",
     }
   }
 };

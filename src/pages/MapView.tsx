@@ -83,12 +83,16 @@ const MapView = () => {
     setLoading(true);
     const { data } = await supabase
       .from("villages")
-      .select("*")
+      .select("*, districts(name)")
       .order("risk_score", { ascending: false });
 
     if (data) {
-      setVillages(data);
-      data.forEach((village) => loadVillageStats(village.id));
+      const mapped = (data as any[]).map(v => ({
+        ...v,
+        district: v.districts?.name || null
+      }));
+      setVillages(mapped);
+      mapped.forEach((village) => loadVillageStats(village.id));
     }
     setLoading(false);
   };

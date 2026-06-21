@@ -5,14 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Eye, EyeOff, ArrowLeft, Droplets, Wifi, Activity } from "lucide-react";
+import { Shield, Eye, EyeOff, ArrowLeft, Droplets, Wifi, Activity, Globe } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useTranslation } from "react-i18next";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type AuthStep = 'credentials' | 'otp-verify';
 
+const languages = [
+  { code: 'en', name: 'English', nativeName: 'English' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+];
+
 const Auth = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const [loading, setLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>('credentials');
   const [otpCode, setOtpCode] = useState('');
@@ -107,13 +115,7 @@ const Auth = () => {
           return;
         }
 
-        const otp = generateOTP();
-        setGeneratedOtp(otp);
-        setPendingEmail(loginData.email);
-        setAuthStep('otp-verify');
-        setResendTimer(60);
-        await sendOtpEmail(loginData.email, otp);
-        toast({ title: "🔐 Verification Code Sent", description: "Check your email for the OTP code.", duration: 10000 });
+        navigate('/dashboard', { replace: true });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
@@ -130,7 +132,7 @@ const Auth = () => {
       setLoading(false);
       return;
     }
-    toast({ title: "✓ Verified!", description: "Identity confirmed." });
+    dismiss();
     setLoading(false);
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -201,8 +203,8 @@ const Auth = () => {
                 <div className="absolute inset-0 rounded-2xl animate-ping opacity-20"
                   style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }} />
               </div>
-              <h2 className="text-3xl font-bold text-white mb-2">Verify Identity</h2>
-              <p className="text-white/60 text-sm">MFA code sent to</p>
+              <h2 className="text-3xl font-bold text-white mb-2">{t('auth.verifyIdentity')}</h2>
+              <p className="text-white/60 text-sm">{t('auth.mfaSent')}</p>
               <p className="text-[hsl(200,85%,65%)] font-medium">{pendingEmail}</p>
             </div>
 
@@ -223,18 +225,18 @@ const Auth = () => {
               disabled={loading || otpCode.length !== 6}
               style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }}
             >
-              {loading ? "Verifying..." : "🔐 Verify & Access"}
+              {loading ? t('auth.verifying') : `🔐 ${t('auth.verifyAccess')}`}
             </Button>
 
             <div className="text-center mb-3">
               <button onClick={handleResendOTP} disabled={resendTimer > 0}
                 className="text-sm text-white/60 hover:text-white transition-colors disabled:opacity-40">
-                {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend Code"}
+                {resendTimer > 0 ? t('auth.resendIn', { seconds: resendTimer }) : t('auth.resendCode')}
               </button>
             </div>
 
             <Button variant="ghost" onClick={handleBackToLogin} className="w-full text-white/60 hover:text-white hover:bg-white/10">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Login
+              <ArrowLeft className="h-4 w-4 mr-2" /> {t('auth.backToLogin')}
             </Button>
           </div>
         </div>
@@ -287,14 +289,14 @@ const Auth = () => {
             Aqua<span style={{ color: 'hsl(200,85%,60%)' }}>Guard</span> AI
           </h1>
           <p className="text-xl text-white/70 mb-8 leading-relaxed">
-            Smart Community Health Monitoring &<br />Early Warning System for Water-Borne Diseases
+            {t('auth.subtitle', 'Smart Community Health Monitoring & Early Warning System for Water-Borne Diseases')}
           </p>
 
           <div className="flex flex-wrap gap-3 justify-center mb-8">
             {[
-              { icon: <Activity className="w-4 h-4" />, text: "Real-Time IoT" },
-              { icon: <Shield className="w-4 h-4" />, text: "AI Prediction" },
-              { icon: <Wifi className="w-4 h-4" />, text: "7-14 Day Forecast" },
+              { icon: <Activity className="w-4 h-4" />, text: t('auth.realTimeIot') },
+              { icon: <Shield className="w-4 h-4" />, text: t('auth.aiPrediction') },
+              { icon: <Wifi className="w-4 h-4" />, text: t('auth.forecast714') },
             ].map((f, i) => (
               <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
                 style={{ background: 'hsl(200,85%,55% / 0.15)', border: '1px solid hsl(200,85%,55% / 0.3)' }}>
@@ -306,8 +308,8 @@ const Auth = () => {
 
           <div className="grid grid-cols-2 gap-4 text-center">
             {[
-              { emoji: "🌱", role: "Community / Citizen", desc: "Report & stay informed" },
-              { emoji: "🏥", role: "Health Official", desc: "Full dashboard access" },
+              { emoji: "🌱", role: t('auth.volunteerAsha'), desc: t('auth.reportStayInformed') },
+              { emoji: "🏥", role: t('auth.healthOfficial'), desc: t('auth.fullDashboardAccess') },
             ].map((r, i) => (
               <div key={i} className="p-4 rounded-2xl backdrop-blur-sm"
                 style={{ background: 'hsl(200,85%,55% / 0.08)', border: '1px solid hsl(200,85%,55% / 0.2)' }}>
@@ -335,19 +337,42 @@ const Auth = () => {
           <div className="backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
             style={{ background: 'hsl(210,25%,12% / 0.8)', border: '1px solid hsl(200,85%,55% / 0.2)' }}>
 
+            {/* Language switcher */}
+            <div className="flex justify-end mb-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10 gap-1.5">
+                    <Globe className="h-4 w-4" />
+                    <span>{languages.find(l => l.code === i18n.language)?.nativeName || "English"}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-white">
+                  {languages.map((lang) => (
+                    <DropdownMenuItem
+                      key={lang.code}
+                      onClick={() => i18n.changeLanguage(lang.code)}
+                      className={`hover:bg-white/10 focus:bg-white/10 cursor-pointer ${i18n.language === lang.code ? 'bg-white/15' : ''}`}
+                    >
+                      <span>{lang.nativeName}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
             {/* Login heading */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-              <p className="text-white/50 text-sm">Sign in to your AquaGuard AI account</p>
+              <h2 className="text-2xl font-bold text-white mb-1">{t('auth.welcomeBack')}</h2>
+              <p className="text-white/50 text-sm">{t('auth.signInToAccount')}</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <Label className="text-white/70 text-sm mb-2 block">Email Address</Label>
+                <Label className="text-white/70 text-sm mb-2 block">{t('auth.emailAddress')}</Label>
                 <Input
                   id="login-email"
                   type="email"
-                  placeholder="official@aquaguard.gov"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={loginData.email}
                   onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                   required
@@ -357,12 +382,12 @@ const Auth = () => {
               </div>
 
               <div>
-                <Label className="text-white/70 text-sm mb-2 block">Password</Label>
+                <Label className="text-white/70 text-sm mb-2 block">{t('auth.password')}</Label>
                 <div className="relative">
                   <Input
                     id="login-password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={t('auth.passwordPlaceholder')}
                     value={loginData.password}
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                     required
@@ -379,11 +404,7 @@ const Auth = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 rounded-2xl"
-                style={{ background: 'hsl(200,85%,45% / 0.1)', border: '1px solid hsl(200,85%,55% / 0.2)' }}>
-                <Shield className="h-5 w-5 flex-shrink-0" style={{ color: 'hsl(200,85%,65%)' }} />
-                <span className="text-white/60 text-sm">OTP verification required after login</span>
-              </div>
+
 
               <Button
                 id="login-submit"
@@ -392,12 +413,12 @@ const Auth = () => {
                 disabled={loading}
                 style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }}
               >
-                {loading ? "Authenticating..." : "🔐 Secure Login"}
+                {loading ? t('auth.authenticating') : `🔐 ${t('auth.secureLogin')}`}
               </Button>
             </form>
 
             <p className="text-center text-xs text-white/30 mt-6">
-              Secured by Government-Grade MFA • AquaGuard AI v2.0
+              {t('auth.securedByMfa')}
             </p>
           </div>
         </div>

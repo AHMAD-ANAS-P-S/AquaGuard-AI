@@ -20,8 +20,15 @@ const ExportReports = () => {
 
   useEffect(() => {
     const loadVillages = async () => {
-      const { data } = await supabase.from("villages").select("id, name, district").order("name");
-      if (data) setVillages(data);
+      const { data } = await supabase.from("villages").select("id, name, districts(name)").order("name");
+      if (data) {
+        const mapped = (data as any[]).map(v => ({
+          id: v.id,
+          name: v.name,
+          district: v.districts?.name || null
+        }));
+        setVillages(mapped);
+      }
     };
     loadVillages();
   }, []);
@@ -31,11 +38,11 @@ const ExportReports = () => {
     try {
       let query: any;
       if (exportType === "health_reports") {
-        query = supabase.from("health_reports").select("*, villages(name, district)");
+        query = supabase.from("health_reports").select("*, villages(name, districts(name))");
       } else if (exportType === "water_quality") {
-        query = supabase.from("water_quality_readings").select("*, villages(name, district)");
+        query = supabase.from("water_quality_readings").select("*, villages(name, districts(name))");
       } else {
-        query = supabase.from("alerts").select("*, villages(name, district)");
+        query = supabase.from("alerts").select("*, villages(name, districts(name))");
       }
 
       if (selectedVillage !== "all") query = query.eq("village_id", selectedVillage);
@@ -57,7 +64,7 @@ const ExportReports = () => {
       for (const row of data) {
         const values = headers.map(h => {
           if (h === "village_name") return `"${row.villages?.name || ""}"`;
-          if (h === "district") return `"${row.villages?.district || ""}"`;
+          if (h === "district") return `"${row.villages?.districts?.name || ""}"`;
           const val = row[h];
           if (val === null || val === undefined) return "";
           if (typeof val === "object") return `"${JSON.stringify(val).replace(/"/g, '""')}"`;
@@ -86,11 +93,11 @@ const ExportReports = () => {
     try {
       let query: any;
       if (exportType === "health_reports") {
-        query = supabase.from("health_reports").select("*, villages(name, district)");
+        query = supabase.from("health_reports").select("*, villages(name, districts(name))");
       } else if (exportType === "water_quality") {
-        query = supabase.from("water_quality_readings").select("*, villages(name, district)");
+        query = supabase.from("water_quality_readings").select("*, villages(name, districts(name))");
       } else {
-        query = supabase.from("alerts").select("*, villages(name, district)");
+        query = supabase.from("alerts").select("*, villages(name, districts(name))");
       }
 
       if (selectedVillage !== "all") query = query.eq("village_id", selectedVillage);

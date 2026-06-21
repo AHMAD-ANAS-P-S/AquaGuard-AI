@@ -84,7 +84,7 @@ const MOCK_PENDING_REPORTS = [
 
 const MOCK_KPI = {
   villagesMonitored: 50,
-  citizensCovered: 120000,
+  populationCovered: 120000,
   reportsCollected: 500,
   alertsGenerated: 20,
   outbreaksPrevented: 12,
@@ -99,15 +99,19 @@ export const db = {
 
   getVillages: async () => {
     try {
-      const { data, error } = await supabase.from('villages').select('*').order('name');
+      const { data, error } = await supabase.from('villages').select('*, districts(name)').order('name');
       if (error) throw error;
       
       // Merge live database fields with fallback details
       const local = getFallback("villages", MOCK_VILLAGES);
       return local.map(l => {
-        const dbVal = data.find(d => d.name === l.name);
+        const dbVal = (data as any[]).find(d => d.name === l.name);
         if (dbVal) {
-          return { ...l, ...dbVal };
+          return { 
+            ...l, 
+            ...dbVal,
+            district: dbVal.districts?.name || dbVal.district || null
+          };
         }
         return l;
       });
@@ -124,11 +128,13 @@ export const db = {
       saveFallback("villages", local);
     }
     try {
+      const isUuid = village.districtId && village.districtId.length === 36;
       await supabase.from('villages').upsert({
         name: village.name,
         risk_score: village.riskScore,
         risk_level: village.riskLevel,
-        population: village.population
+        population: village.population,
+        district_id: isUuid ? village.districtId : null
       });
     } catch (e) {
       console.warn("[AquaGuard DB] Suppress live DB update error on fallback:", e);

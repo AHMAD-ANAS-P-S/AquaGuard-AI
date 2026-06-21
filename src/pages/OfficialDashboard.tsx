@@ -71,7 +71,7 @@ const OfficialDashboard = () => {
       supabase.from('health_reports').select('*', { count: 'exact', head: true }),
       supabase.from('iot_devices').select('*', { count: 'exact', head: true }).eq('status', 'active'),
       supabase.from('villages').select('*', { count: 'exact', head: true }).eq('risk_level', 'high'),
-      supabase.from('villages').select('*').order('risk_score', { ascending: false }).limit(10),
+      supabase.from('villages').select('*, districts(name)').order('risk_score', { ascending: false }).limit(10),
       supabase.from('action_logs').select('*, alerts(title), profiles(full_name)').order('created_at', { ascending: false }).limit(8),
       supabase.from('ai_predictions').select('*, villages(name)').order('predicted_at', { ascending: false }).limit(5),
       supabase.from('health_reports').select('*, villages(name)').order('created_at', { ascending: false }).limit(6),
@@ -83,7 +83,15 @@ const OfficialDashboard = () => {
       iotDevices: devicesRes.count || 0,
       highRiskAreas: highRiskRes.count || 0,
     });
-    setVillages(villagesRes.data || []);
+    if (villagesRes.data) {
+      const mapped = (villagesRes.data as any[]).map(v => ({
+        ...v,
+        district: v.districts?.name || null
+      }));
+      setVillages(mapped);
+    } else {
+      setVillages([]);
+    }
     setActionLogs(logsRes.data || []);
     setPredictions(predsRes.data || []);
     setRecentReports(recentRes.data || []);

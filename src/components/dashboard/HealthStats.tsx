@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 
+const MOCK_SYMPTOMS = [
+  { symptom: "Diarrhea", cases: 28 },
+  { symptom: "Fever", cases: 19 },
+  { symptom: "Vomiting", cases: 15 },
+  { symptom: "Stomach Pain", cases: 12 },
+  { symptom: "Nausea", cases: 8 },
+  { symptom: "Dehydration", cases: 5 },
+];
+
 export const HealthStats = () => {
   const [symptomData, setSymptomData] = useState<any[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     loadSymptomStats();
@@ -19,7 +30,7 @@ export const HealthStats = () => {
       .select("symptoms, cases_count")
       .gte("created_at", weekAgo.toISOString());
 
-    if (data) {
+    if (data && data.length > 0) {
       const symptomCounts: Record<string, number> = {};
       
       data.forEach((report) => {
@@ -35,22 +46,28 @@ export const HealthStats = () => {
         .slice(0, 6);
 
       setSymptomData(chartData);
+      setIsDemo(false);
+    } else {
+      setSymptomData(MOCK_SYMPTOMS);
+      setIsDemo(true);
     }
   };
 
   return (
     <Card className="p-6">
       <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">Symptom Distribution</h3>
-          <p className="text-sm text-muted-foreground">Last 7 days</p>
-        </div>
-        {symptomData.length === 0 ? (
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-            No symptom data available
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Symptom Distribution</h3>
+            <p className="text-sm text-muted-foreground">Last 7 days</p>
           </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
+          {isDemo && (
+            <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/20">
+              Demo Data
+            </Badge>
+          )}
+        </div>
+        <ResponsiveContainer width="100%" height={300}>
             <BarChart data={symptomData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="symptom" stroke="hsl(var(--muted-foreground))" />
@@ -66,7 +83,6 @@ export const HealthStats = () => {
               <Bar dataKey="cases" fill="hsl(var(--chart-2))" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        )}
       </div>
     </Card>
   );

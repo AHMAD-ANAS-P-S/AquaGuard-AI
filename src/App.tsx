@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Navigation } from "@/components/layout/Navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useTranslation } from "react-i18next";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { GamificationProvider } from "@/hooks/useGamification";
 import { AchievementDisplay } from "@/components/AchievementDisplay";
@@ -29,8 +32,44 @@ import ExportReports from "./pages/ExportReports";
 
 const queryClient = new QueryClient();
 
+const RoleRoute = ({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) => {
+  const { roles, loading } = useUserRole();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm text-muted-foreground">Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const hasAccess = roles.some((role) => allowedRoles.includes(role));
+  if (!hasAccess) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const AppContent = () => {
   const { user, loading } = useAuth();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    if (!loading) {
+      if (user) {
+        // Load saved language preference only after successful authentication
+        const savedLang = localStorage.getItem(`aquaguard_lang_${user.id}`) || "en";
+        i18n.changeLanguage(savedLang);
+      } else {
+        // On every fresh logout or when auth is empty, always reset to English
+        i18n.changeLanguage("en");
+      }
+    }
+  }, [user, loading, i18n]);
 
   if (loading) {
     return (
@@ -61,18 +100,91 @@ const AppContent = () => {
         <Route path="/" element={user ? <Index /> : <Navigate to="/auth" replace />} />
         <Route path="/reports" element={user ? <Reports /> : <Navigate to="/auth" replace />} />
         <Route path="/alerts" element={user ? <Alerts /> : <Navigate to="/auth" replace />} />
-        <Route path="/map" element={user ? <MapView /> : <Navigate to="/auth" replace />} />
-        <Route path="/awareness" element={user ? <Awareness /> : <Navigate to="/auth" replace />} />
-        <Route path="/iot-monitoring" element={user ? <IoTMonitoring /> : <Navigate to="/auth" replace />} />
-        <Route path="/alert-escalation" element={user ? <AlertEscalation /> : <Navigate to="/auth" replace />} />
+        
+        <Route 
+          path="/map" 
+          element={
+            user ? (
+              <RoleRoute allowedRoles={['admin', 'official', 'health_official', 'volunteer', 'clinic_staff', 'clinic_staffs']}>
+                <MapView />
+              </RoleRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+        
+        <Route 
+          path="/awareness" 
+          element={
+            user ? (
+              <RoleRoute allowedRoles={['admin', 'volunteer', 'clinic_staff', 'clinic_staffs']}>
+                <Awareness />
+              </RoleRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+        
+        <Route 
+          path="/iot-monitoring" 
+          element={
+            user ? (
+              <RoleRoute allowedRoles={['admin']}>
+                <IoTMonitoring />
+              </RoleRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+        
+        <Route 
+          path="/alert-escalation" 
+          element={
+            user ? (
+              <RoleRoute allowedRoles={['admin', 'official', 'health_official']}>
+                <AlertEscalation />
+              </RoleRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+        
         <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
         <Route path="/community-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/official-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/admin-dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/clinic-dashboard" element={<Navigate to="/dashboard" replace />} />
         
-        <Route path="/image-analysis" element={user ? <ImageAnalysis /> : <Navigate to="/auth" replace />} />
-        <Route path="/export-reports" element={user ? <ExportReports /> : <Navigate to="/auth" replace />} />
+        <Route 
+          path="/image-analysis" 
+          element={
+            user ? (
+              <RoleRoute allowedRoles={['admin', 'official', 'health_official', 'clinic_staff', 'clinic_staffs']}>
+                <ImageAnalysis />
+              </RoleRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+        
+        <Route 
+          path="/export-reports" 
+          element={
+            user ? (
+              <RoleRoute allowedRoles={['admin']}>
+                <ExportReports />
+              </RoleRoute>
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+        
         <Route path="/profile" element={user ? <Profile /> : <Navigate to="/auth" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

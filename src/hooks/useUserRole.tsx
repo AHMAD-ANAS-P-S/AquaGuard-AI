@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-export type UserRole = 'admin' | 'official' | 'health_official' | 'asha_worker' | 'volunteer' | 'clinic_staff' | 'citizen';
+export type UserRole = 'admin' | 'official' | 'health_official' | 'asha_worker' | 'volunteer' | 'clinic_staff';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -53,11 +53,11 @@ export const useUserRole = () => {
     try {
       const { error } = await supabase
         .from('user_roles')
-        .insert({ id: user.id, email: user.email, role: 'citizen' });
+        .insert({ id: user.id, email: user.email, role: 'volunteer' });
 
       if (error) throw error;
       
-      setRoles(['citizen']);
+      setRoles(['volunteer']);
     } catch (error) {
       console.error('Error assigning default role:', error);
       setRoles([]);
@@ -68,7 +68,7 @@ export const useUserRole = () => {
 
   const isOfficial = () => hasRole('admin') || hasRole('official') || hasRole('health_official') || hasRole('clinic_staff');
 
-  const isCommunity = () => hasRole('citizen') || hasRole('asha_worker') || hasRole('volunteer');
+  const isCommunity = () => hasRole('asha_worker') || hasRole('volunteer');
 
   return {
     roles,

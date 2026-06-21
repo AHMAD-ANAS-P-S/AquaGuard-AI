@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 
+const mockReadings = [
+  { time: "09:00 AM", pH: 7.2, turbidity: 1.2, tds: 25 },
+  { time: "10:00 AM", pH: 7.3, turbidity: 1.5, tds: 26 },
+  { time: "11:00 AM", pH: 7.1, turbidity: 2.1, tds: 28 },
+  { time: "12:00 PM", pH: 6.8, turbidity: 4.2, tds: 34 },
+  { time: "13:00 PM", pH: 6.5, turbidity: 5.5, tds: 42 },
+  { time: "14:00 PM", pH: 6.9, turbidity: 3.8, tds: 38 },
+  { time: "15:00 PM", pH: 7.0, turbidity: 2.4, tds: 31 },
+  { time: "16:00 PM", pH: 7.2, turbidity: 1.8, tds: 27 },
+];
+
 export const WaterQualityChart = () => {
   const [data, setData] = useState<any[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     const fetchReadings = async () => {
@@ -14,14 +27,18 @@ export const WaterQualityChart = () => {
         .order("reading_timestamp", { ascending: true })
         .limit(20);
 
-      if (readings) {
+      if (readings && readings.length > 0) {
         const formatted = readings.map((r) => ({
-          time: new Date(r.reading_timestamp).toLocaleTimeString(),
+          time: r.reading_timestamp ? new Date(r.reading_timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Unknown",
           pH: Number(r.ph) || 0,
           turbidity: Number(r.turbidity) || 0,
           tds: Number(r.tds) / 10 || 0,
         }));
         setData(formatted);
+        setIsDemo(false);
+      } else {
+        setData(mockReadings);
+        setIsDemo(true);
       }
     };
 
@@ -40,9 +57,16 @@ export const WaterQualityChart = () => {
   return (
     <Card className="p-6">
       <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">Water Quality Trends</h3>
-          <p className="text-sm text-muted-foreground">Live sensor data</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground font-semibold">Water Quality Trends</h3>
+            <p className="text-sm text-muted-foreground">Live sensor data</p>
+          </div>
+          {isDemo && (
+            <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/20">
+              Demo Data
+            </Badge>
+          )}
         </div>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data}>

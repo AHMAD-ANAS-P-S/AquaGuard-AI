@@ -32,7 +32,7 @@ export const PushNotificationService = () => {
             // Browser push notification
             if ('Notification' in window && Notification.permission === 'granted') {
               new Notification('🚨 AquaGuard ALERT', {
-                body: `${alert.title} — ${alert.severity.toUpperCase()} severity detected`,
+                body: `${alert.title} — ${(alert.severity || 'low').toUpperCase()} severity detected`,
                 icon: '/icon-192x192.png',
                 badge: '/icon-192x192.png',
                 tag: 'aquaguard-alert',
