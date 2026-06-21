@@ -29,6 +29,47 @@ const saveFallback = <T>(key: string, data: T): void => {
   localStorage.setItem(`aquaguard_${key}`, JSON.stringify(data));
 };
 
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const readNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value.replace(/[^\d.-]/g, ""));
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+};
+
+type WaterSensorReading = {
+  pH?: unknown;
+  turbidity?: unknown;
+  bacterial?: unknown;
+  do?: unknown;
+};
+
+const calculateWaterRisk = (sensor?: WaterSensorReading) => {
+  if (!sensor) return 35;
+
+  const ph = readNumber(sensor.pH, 7);
+  const turbidity = readNumber(sensor.turbidity, 0);
+  const bacterial = readNumber(sensor.bacterial, 0);
+  const dissolvedOxygen = readNumber(sensor.do, 7);
+
+  const phRisk = ph < 6.5 ? (6.5 - ph) * 18 : ph > 8.5 ? (ph - 8.5) * 18 : 0;
+  const turbidityRisk = Math.max(0, turbidity - 5) * 5.5;
+  const bacterialRisk = Math.max(0, bacterial - 10) * 0.22;
+  const oxygenRisk = dissolvedOxygen < 5 ? (5 - dissolvedOxygen) * 9 : 0;
+
+  return clamp(Math.round(phRisk + turbidityRisk + bacterialRisk + oxygenRisk), 0, 100);
+};
+
+const SIMULATED_ACTIONS = [
+  "Water Tanker Deployment",
+  "Chlorination Drive",
+  "Medical Camp",
+  "Awareness Campaign",
+];
+
 // Initial Mock Data Setup for Presentations & Offline fallback
 const MOCK_DISTRICTS = [
   { id: "d1", name: "Dibrugarh", cases: 142, alerts: 4, resources: 85, risk: "high" },
@@ -60,6 +101,11 @@ const MOCK_VILLAGES = [
   { id: "v13", districtId: "d8", name: "Andhimanam", population: 5200, waterSources: 2, cases: 8, riskScore: 30, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 28, predictedDisease: "None", mainWaterSource: "Open Well", latitude: 12.7562, longitude: 79.8225 },
   { id: "v14", districtId: "d8", name: "Pappankuzhi", population: 3800, waterSources: 1, cases: 2, riskScore: 15, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 12, predictedDisease: "None", mainWaterSource: "Hand Pump", latitude: 12.8931, longitude: 79.8833 },
   { id: "v15", districtId: "d11", name: "Vengaivayal", population: 2900, waterSources: 1, cases: 14, riskScore: 65, riskLevel: "high", alerts: 1, resourcesAssigned: 2, predictionScore: 72, predictedDisease: "Typhoid", mainWaterSource: "Pond Water", latitude: 11.6643, longitude: 78.1460 },
+  { id: "v16", districtId: "d1", name: "Karlambakkam", population: 6000, waterSources: 3, cases: 12, riskScore: 45, riskLevel: "medium", alerts: 1, resourcesAssigned: 2, predictionScore: 50, predictedDisease: "Diarrhea", mainWaterSource: "Borewell Water", latitude: 13.1611, longitude: 79.9482 },
+  { id: "v17", districtId: "d1", name: "Thiruper", population: 4500, waterSources: 2, cases: 5, riskScore: 25, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 20, predictedDisease: "None", mainWaterSource: "Community Handpump", latitude: 12.8342, longitude: 79.7036 },
+  { id: "v18", districtId: "d1", name: "Andhimanam", population: 5200, waterSources: 2, cases: 8, riskScore: 30, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 28, predictedDisease: "None", mainWaterSource: "Open Well", latitude: 12.7562, longitude: 79.8225 },
+  { id: "v19", districtId: "d1", name: "Pappankuzhi", population: 3800, waterSources: 1, cases: 2, riskScore: 15, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 12, predictedDisease: "None", mainWaterSource: "Hand Pump", latitude: 12.8931, longitude: 79.8833 },
+  { id: "v20", districtId: "d1", name: "Vengaivayal", population: 2900, waterSources: 1, cases: 14, riskScore: 65, riskLevel: "high", alerts: 1, resourcesAssigned: 2, predictionScore: 72, predictedDisease: "Typhoid", mainWaterSource: "Pond Water", latitude: 11.6643, longitude: 78.1460 },
 ];
 
 const MOCK_PREDICTIONS = [
@@ -269,19 +315,125 @@ export const db = {
 
   simulateIntervention: (villageId: string, applyIntervention: boolean) => {
     const villages = getFallback("villages", MOCK_VILLAGES);
+    const predictions = getFallback("predictions", MOCK_PREDICTIONS);
+    const sensors = getFallback("sensors", MOCK_SENSORS);
+    const clusters = getFallback("clusters", MOCK_CLUSTERS);
+    const pendingReports = getFallback("pending_reports", MOCK_PENDING_REPORTS);
     const village = villages.find(v => v.id === villageId);
-    if (!village) return { riskScore: 50, expectedCases: 20 };
-
-    if (applyIntervention) {
+    if (!village) {
       return {
-        riskScore: Math.max(10, Math.round(village.riskScore * 0.35)),
-        expectedCases: Math.max(2, Math.round(village.cases * 0.5))
-      };
-    } else {
-      return {
-        riskScore: Math.min(100, Math.round(village.riskScore * 1.15)),
-        expectedCases: Math.round(village.cases * 3.3)
+        riskScore: applyIntervention ? 30 : 62,
+        expectedCases: applyIntervention ? 8 : 29,
+        baseline: { riskScore: 62, expectedCases: 29 },
+        intervention: { riskScore: 30, expectedCases: 8 },
+        impact: { casesPrevented: 21, riskReductionPercent: 52, populationProtected: 900, responseTimeSaved: "18 hours" },
+        actions: SIMULATED_ACTIONS,
+        drivers: { villageRiskScore: 50, activeAlerts: 1, waterQualityRisk: 35, diseaseReportRisk: 25, aiPredictionScore: 50 }
       };
     }
+
+    const villageRiskScore = clamp(readNumber(village.riskScore, 50), 0, 100);
+    const activeAlerts = readNumber(village.alerts, 0);
+    const currentCases = readNumber(village.cases, 0);
+    const population = Math.max(1, readNumber(village.population, 1000));
+    const aiPredictionScore = clamp(
+      readNumber(village.predictionScore, predictions.find((p) => p.villageName === village.name)?.confidence || villageRiskScore),
+      0,
+      100
+    );
+    const waterQualityRisk = calculateWaterRisk(sensors.find((s) => s.village === village.name));
+    const villageCluster = clusters.find((cluster) => cluster.village === village.name);
+    const clusterRisk = villageCluster?.status === "Critical" ? 36 : villageCluster?.status === "High Alert" ? 26 : villageCluster ? 14 : 0;
+    const reportCases = pendingReports
+      .filter((report) => report.village === village.name && report.status === "Pending")
+      .reduce((sum: number, report) => sum + readNumber(report.cases, 0), 0);
+    const diseaseReportRisk = clamp(clusterRisk + reportCases * 2.4 + currentCases / Math.max(1, population / 1000), 0, 100);
+    const alertRisk = clamp(activeAlerts * 24, 0, 100);
+
+    const outbreakPressure = clamp(Math.round(
+      villageRiskScore * 0.34 +
+      aiPredictionScore * 0.22 +
+      waterQualityRisk * 0.18 +
+      diseaseReportRisk * 0.16 +
+      alertRisk * 0.10
+    ), 0, 100);
+
+    const noActionRiskIncrease = Math.round(
+      6 +
+      activeAlerts * 4 +
+      waterQualityRisk * 0.10 +
+      diseaseReportRisk * 0.08 +
+      aiPredictionScore * 0.06
+    );
+    const noActionRisk = clamp(
+      Math.max(villageRiskScore + (villageRiskScore >= 65 ? 8 : 4), outbreakPressure + noActionRiskIncrease),
+      0,
+      100
+    );
+
+    const populationExposure = population * (noActionRisk / 100) * 0.018;
+    const noActionGrowthFactor = 1.45 + noActionRisk / 95 + activeAlerts * 0.12 + waterQualityRisk / 260;
+    const noActionCases = Math.max(
+      currentCases + activeAlerts * 3 + 2,
+      Math.round(currentCases * noActionGrowthFactor + populationExposure + reportCases)
+    );
+
+    const interventionStrength = clamp(
+      0.34 +
+      activeAlerts * 0.025 +
+      waterQualityRisk / 600 +
+      aiPredictionScore / 900 +
+      (village.riskLevel === "high" ? 0.08 : 0),
+      0.38,
+      0.72
+    );
+    const interventionRiskDrop = Math.round(
+      10 +
+      villageRiskScore * interventionStrength * 0.42 +
+      waterQualityRisk * 0.12 +
+      diseaseReportRisk * 0.10 +
+      activeAlerts * 2
+    );
+    const interventionRisk = clamp(
+      Math.min(villageRiskScore - (villageRiskScore >= 65 ? 12 : 6), outbreakPressure - interventionRiskDrop),
+      5,
+      100
+    );
+
+    const protectedPopulation = Math.round(population * clamp((noActionRisk - interventionRisk) / 100, 0.05, 0.82));
+    const interventionCases = Math.max(
+      1,
+      Math.round(noActionCases * (1 - interventionStrength) - activeAlerts * 2 - waterQualityRisk / 18)
+    );
+    const casesPrevented = Math.max(0, noActionCases - interventionCases);
+    const riskReductionPercent = noActionRisk > 0
+      ? Math.round(((noActionRisk - interventionRisk) / noActionRisk) * 100)
+      : 0;
+    const responseHoursSaved = clamp(Math.round(8 + activeAlerts * 6 + waterQualityRisk / 5 + aiPredictionScore / 8), 8, 48);
+
+    const baseline = { riskScore: noActionRisk, expectedCases: noActionCases };
+    const intervention = { riskScore: interventionRisk, expectedCases: interventionCases };
+    const selectedScenario = applyIntervention ? intervention : baseline;
+
+    return {
+      ...selectedScenario,
+      baseline,
+      intervention,
+      impact: {
+        casesPrevented,
+        riskReductionPercent,
+        populationProtected: protectedPopulation,
+        responseTimeSaved: `${responseHoursSaved} hours`,
+      },
+      actions: SIMULATED_ACTIONS,
+      drivers: {
+        villageRiskScore,
+        activeAlerts,
+        waterQualityRisk,
+        diseaseReportRisk: Math.round(diseaseReportRisk),
+        aiPredictionScore,
+      },
+      villageName: village.name,
+    };
   }
 };
