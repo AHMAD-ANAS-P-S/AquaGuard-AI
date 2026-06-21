@@ -1,4 +1,34 @@
--- Create districts table if not exists
+-- 1. Create villages table if not exists
+CREATE TABLE IF NOT EXISTS public.villages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  district TEXT,
+  state TEXT DEFAULT 'Assam',
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+  population INTEGER,
+  risk_level TEXT DEFAULT 'low' CHECK (risk_level IN ('low', 'medium', 'high')),
+  risk_score INTEGER DEFAULT 0 CHECK (risk_score >= 0 AND risk_score <= 100),
+  last_updated TIMESTAMPTZ DEFAULT now(),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 2. Create alerts table if not exists
+CREATE TABLE IF NOT EXISTS public.alerts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  village_id UUID REFERENCES public.villages(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  severity TEXT NOT NULL CHECK (severity IN ('low', 'medium', 'high', 'critical')),
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'investigating', 'resolved')),
+  actions_taken TEXT,
+  assigned_to UUID REFERENCES auth.users(id),
+  resolved_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 3. Create districts table if not exists
 CREATE TABLE IF NOT EXISTS public.districts (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     name text NOT NULL UNIQUE,
@@ -6,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.districts (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create disease_cases table if not exists
+-- 4. Create disease_cases table if not exists
 CREATE TABLE IF NOT EXISTS public.disease_cases (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     patient_name text,
@@ -19,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.disease_cases (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create water_quality_reports table if not exists (manual tests)
+-- 5. Create water_quality_reports table if not exists (manual tests)
 CREATE TABLE IF NOT EXISTS public.water_quality_reports (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     reporter_name text NOT NULL,
@@ -33,7 +63,7 @@ CREATE TABLE IF NOT EXISTS public.water_quality_reports (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create outbreak_predictions table if not exists
+-- 6. Create outbreak_predictions table if not exists
 CREATE TABLE IF NOT EXISTS public.outbreak_predictions (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     village_id uuid REFERENCES public.villages(id) ON DELETE CASCADE,
@@ -47,7 +77,7 @@ CREATE TABLE IF NOT EXISTS public.outbreak_predictions (
     predicted_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create interventions table if not exists
+-- 7. Create interventions table if not exists
 CREATE TABLE IF NOT EXISTS public.interventions (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     alert_id uuid REFERENCES public.alerts(id) ON DELETE CASCADE,
@@ -61,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.interventions (
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create resources table if not exists
+-- 8. Create resources table if not exists
 CREATE TABLE IF NOT EXISTS public.resources (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     type text NOT NULL, -- Doctor, Nurse, Health Worker, ORS Kit, Medicine, Water Tanker
@@ -72,7 +102,7 @@ CREATE TABLE IF NOT EXISTS public.resources (
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create awareness_content table if not exists
+-- 9. Create awareness_content table if not exists
 CREATE TABLE IF NOT EXISTS public.awareness_content (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     title text NOT NULL,
@@ -82,7 +112,7 @@ CREATE TABLE IF NOT EXISTS public.awareness_content (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create campaign_logs table if not exists
+-- 10. Create campaign_logs table if not exists
 CREATE TABLE IF NOT EXISTS public.campaign_logs (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     title text NOT NULL,
@@ -93,7 +123,7 @@ CREATE TABLE IF NOT EXISTS public.campaign_logs (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create notification_logs table if not exists
+-- 11. Create notification_logs table if not exists
 CREATE TABLE IF NOT EXISTS public.notification_logs (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     recipient text NOT NULL,
