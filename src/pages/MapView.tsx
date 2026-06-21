@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import HeatmapLayer from "@/components/dashboard/HeatmapLayer";
+import { db } from "@/utils/db";
 import "leaflet/dist/leaflet.css";
 
 interface Village {
@@ -19,6 +20,7 @@ interface Village {
   population: number | null;
   latitude: number | null;
   longitude: number | null;
+  predictedDisease?: string;
 }
 
 interface VillageStats {
@@ -81,16 +83,16 @@ const MapView = () => {
 
   const loadVillages = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("villages")
-      .select("*, districts(name)")
-      .order("risk_score", { ascending: false });
+    const data = await db.getVillages();
 
     if (data) {
-      const mapped = (data as any[]).map(v => ({
+      const mapped = data.map((v: any) => ({
         ...v,
-        district: v.districts?.name || null
+        district: v.district || v.districts?.name || null
       }));
+      // Sort by risk score
+      mapped.sort((a, b) => (b.riskScore || b.risk_score || 0) - (a.riskScore || a.risk_score || 0));
+      
       setVillages(mapped);
       mapped.forEach((village) => loadVillageStats(village.id));
     }
@@ -130,7 +132,7 @@ const MapView = () => {
   const heatmapPoints = useMemo((): [number, number, number][] => {
     return villages
       .filter(v => v.latitude && v.longitude)
-      .map(v => [v.latitude!, v.longitude!, (v.risk_score || 0) / 100]);
+      .map(v => [v.latitude!, v.longitude!, (v.risk_score || (v as any).riskScore || 0) / 100]);
   }, [villages]);
 
   // Center map on Assam, India by default
@@ -188,10 +190,10 @@ const MapView = () => {
                   <CircleMarker
                     key={village.id}
                     center={[village.latitude!, village.longitude!]}
-                    radius={10 + (village.risk_score || 0) / 10}
+                    radius={10 + (village.risk_score || (village as any).riskScore || 0) / 10}
                     pathOptions={{
-                      color: getRiskHex(village.risk_level),
-                      fillColor: getRiskHex(village.risk_level),
+                      color: getRiskHex(village.risk_level || (village as any).riskLevel),
+                      fillColor: getRiskHex(village.risk_level || (village as any).riskLevel),
                       fillOpacity: 0.6,
                       weight: 2,
                     }}
@@ -206,8 +208,14 @@ const MapView = () => {
                         <div className="mt-2 space-y-1 text-xs">
                           <div className="flex justify-between">
                             <span>Risk Score</span>
-                            <span className="font-semibold">{village.risk_score}/100</span>
+                            <span className="font-semibold">{village.risk_score || (village as any).riskScore}/100</span>
                           </div>
+                          {village.predictedDisease && village.predictedDisease !== "None" && (
+                            <div className="flex justify-between text-destructive font-semibold">
+                              <span>Disease</span>
+                              <span>{village.predictedDisease}</span>
+                            </div>
+                          )}
                           <div className="flex justify-between">
                             <span>Active Sensors</span>
                             <span>{villageStats[village.id]?.sensors || 0}</span>
@@ -274,8 +282,8 @@ const MapView = () => {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <p className="font-semibold text-foreground">{village.name}</p>
-                        <Badge className={getRiskColor(village.risk_level)}>
-                          {village.risk_level?.toUpperCase()}
+                        <Badge className={getRiskColor(village.risk_level || (village as any).riskLevel)}>
+                          {(village.risk_level || (village as any).riskLevel)?.toUpperCase()}
                         </Badge>
                       </div>
 
@@ -309,13 +317,13 @@ const MapView = () => {
                             <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className={`h-full transition-all duration-500 ${
-                                  village.risk_level === 'high' ? 'bg-destructive' :
-                                  village.risk_level === 'medium' ? 'bg-warning' : 'bg-success'
+                                  (village.risk_level || (village as any).riskLevel) === 'high' ? 'bg-destructive' :
+                                  (village.risk_level || (village as any).riskLevel) === 'medium' ? 'bg-warning' : 'bg-success'
                                 }`}
-                                style={{ width: `${village.risk_score || 0}%` }}
+                                style={{ width: `${village.risk_score || (village as any).riskScore || 0}%` }}
                               />
                             </div>
-                            <span className="text-sm font-bold w-8">{village.risk_score}</span>
+                            <span className="text-sm font-bold w-8">{village.risk_score || (village as any).riskScore || 0}</span>
                           </div>
                         </div>
                       </div>
