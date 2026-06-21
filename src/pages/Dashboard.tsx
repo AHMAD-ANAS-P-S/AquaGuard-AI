@@ -1196,7 +1196,7 @@ const Dashboard = () => {
         {/* HEADER */}
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-            AquaGuard <span className="text-primary font-black">{t('nav.dashboard')} AI</span>
+            {t('branding.title')}
           </h1>
           <p className="text-muted-foreground text-sm">{t('auth.subtitle')}</p>
         </div>
