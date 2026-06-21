@@ -109,7 +109,7 @@ export const Navigation = () => {
           <Link key={item.path} to={item.path}>
             <Button
               variant={isActive ? "default" : "ghost"}
-              className="w-full justify-start gap-2"
+              className="w-full justify-start gap-2 h-auto py-2 whitespace-normal text-left"
             >
               <Icon className="w-4 h-4" />
               {item.label}

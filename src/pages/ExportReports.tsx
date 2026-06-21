@@ -8,8 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
 
 const ExportReports = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [villages, setVillages] = useState<any[]>([]);
   const [selectedVillage, setSelectedVillage] = useState<string>("all");
@@ -189,30 +191,30 @@ const ExportReports = () => {
     <div className="min-h-screen bg-background p-4 md:p-8 lg:pl-72 pt-20 lg:pt-8">
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">Export Reports</h1>
-          <p className="text-muted-foreground mt-1">Download village or district data as CSV or PDF</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">{t('exportTitle', 'Export Reports')}</h1>
+          <p className="text-muted-foreground mt-1">{t('exportSubtitle', 'Download village or district data as CSV or PDF')}</p>
         </div>
 
         <Card className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Report Type</Label>
+              <Label>{t('exportReportType', 'Report Type')}</Label>
               <Select value={exportType} onValueChange={setExportType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="health_reports">Health Reports</SelectItem>
-                  <SelectItem value="water_quality">Water Quality Readings</SelectItem>
-                  <SelectItem value="alerts">Alerts</SelectItem>
+                  <SelectItem value="health_reports">{t('exportHealthReports', 'Health Reports')}</SelectItem>
+                  <SelectItem value="water_quality">{t('exportWaterQuality', 'Water Quality Readings')}</SelectItem>
+                  <SelectItem value="alerts">{t('exportAlerts', 'Alerts')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Village / District</Label>
+              <Label>{t('exportVillageFilter', 'Village / District')}</Label>
               <Select value={selectedVillage} onValueChange={setSelectedVillage}>
-                <SelectTrigger><SelectValue placeholder="All villages" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t('exportAllVillages', 'All villages')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Villages</SelectItem>
+                  <SelectItem value="all">{t('exportAllVillages', 'All Villages')}</SelectItem>
                   {villages.map(v => (
                     <SelectItem key={v.id} value={v.id}>{v.name} {v.district ? `(${v.district})` : ""}</SelectItem>
                   ))}
@@ -221,11 +223,11 @@ const ExportReports = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Date From</Label>
+              <Label>{t('exportStartDate', 'Date From')}</Label>
               <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Date To</Label>
+              <Label>{t('exportEndDate', 'Date To')}</Label>
               <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
             </div>
           </div>
@@ -233,32 +235,32 @@ const ExportReports = () => {
           <div className="flex flex-wrap gap-3">
             <Button onClick={exportCSV} className="gap-2" disabled={exporting}>
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
-              Export CSV
+              {exporting ? t('exportExporting', 'Exporting...') : t('exportDownloadCsv', 'Export CSV')}
             </Button>
             <Button onClick={exportPDF} variant="outline" className="gap-2" disabled={exporting}>
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              Export PDF
+              {t('exportPrintPdf', 'Print / PDF')}
             </Button>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-3">Export Info</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-3">{t('exportInfo', 'Export Info')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 bg-muted/30 rounded-lg text-center">
               <FileSpreadsheet className="w-8 h-8 mx-auto text-primary mb-2" />
-              <p className="font-medium text-foreground">CSV Format</p>
-              <p className="text-xs text-muted-foreground mt-1">Open in Excel, Google Sheets, or any spreadsheet tool</p>
+              <p className="font-medium text-foreground">{t('csvFormat', 'CSV Format')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('csvFormatDesc', 'Open in Excel, Google Sheets, or any spreadsheet tool')}</p>
             </div>
             <div className="p-4 bg-muted/30 rounded-lg text-center">
               <FileText className="w-8 h-8 mx-auto text-primary mb-2" />
-              <p className="font-medium text-foreground">PDF Format</p>
-              <p className="text-xs text-muted-foreground mt-1">Print-ready reports with formatting</p>
+              <p className="font-medium text-foreground">{t('pdfFormat', 'PDF Format')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('pdfFormatDesc', 'Print-ready reports with formatting')}</p>
             </div>
             <div className="p-4 bg-muted/30 rounded-lg text-center">
               <Download className="w-8 h-8 mx-auto text-primary mb-2" />
-              <p className="font-medium text-foreground">Filter & Download</p>
-              <p className="text-xs text-muted-foreground mt-1">Filter by village, date range, and report type</p>
+              <p className="font-medium text-foreground">{t('filterDownload', 'Filter & Download')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('filterDownloadDesc', 'Filter by village, date range, and report type')}</p>
             </div>
           </div>
         </Card>

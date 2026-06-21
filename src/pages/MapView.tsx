@@ -5,10 +5,18 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Droplet, Activity, AlertTriangle, Thermometer, Waves, RefreshCw, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import HeatmapLayer from "@/components/dashboard/HeatmapLayer";
 import { db } from "@/utils/db";
 import "leaflet/dist/leaflet.css";
+
+const RecenterMap = ({ center }: { center: [number, number] }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
+  return null;
+};
 
 interface Village {
   id: string;
@@ -21,6 +29,7 @@ interface Village {
   latitude: number | null;
   longitude: number | null;
   predictedDisease?: string;
+  districtId?: string;
 }
 
 interface VillageStats {
@@ -46,6 +55,16 @@ const getRiskHex = (risk: string | null) => {
     case "low": return "#22c55e";
     default: return "#6b7280";
   }
+};
+
+const getDiseaseColor = (disease: string | null | undefined) => {
+  if (!disease || disease === "None" || disease === "none") return "#22c55e"; // Safe / Green
+  const d = disease.toLowerCase();
+  if (d.includes("cholera")) return "#ef4444"; // Red
+  if (d.includes("diarrhea") || d.includes("dysentery")) return "#f97316"; // Orange
+  if (d.includes("typhoid")) return "#eab308"; // Yellow
+  if (d.includes("hepatitis")) return "#a855f7"; // Purple
+  return "#3b82f6"; // Other/Blue
 };
 
 const getRiskGradient = (risk: string | null) => {
@@ -152,11 +171,11 @@ const MapView = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">{t('riskMap')}</h1>
-            <p className="text-muted-foreground mt-1">Digital Twin - Real-time disease outbreak risk zones</p>
+            <p className="text-muted-foreground mt-1">{t('mapDigitalTwinTitle')}</p>
           </div>
           <Button onClick={loadVillages} variant="outline" className="gap-2" disabled={loading}>
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('refreshSystem')}
           </Button>
         </div>
 
@@ -166,12 +185,12 @@ const MapView = () => {
             <div className="p-4 pb-0 flex items-center justify-between">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Waves className="w-5 h-5 text-primary" />
-                Digital Twin - Village Risk Zones
+                {t('mapDigitalTwinTitle')}
               </h3>
               <div className="flex gap-2">
-                <Badge className="bg-destructive text-destructive-foreground">🔴 Red Zone</Badge>
-                <Badge className="bg-warning text-warning-foreground">🟡 Yellow Zone</Badge>
-                <Badge className="bg-success text-success-foreground">🟢 Green Zone</Badge>
+                <Badge className="bg-destructive text-destructive-foreground">{t('mapRedZoneBadge')}</Badge>
+                <Badge className="bg-warning text-warning-foreground">{t('mapYellowZoneBadge')}</Badge>
+                <Badge className="bg-success text-success-foreground">{t('mapGreenZoneBadge')}</Badge>
               </div>
             </div>
             <div className="h-[500px] md:h-[600px] relative">
@@ -207,29 +226,29 @@ const MapView = () => {
                         <p className="text-xs text-muted-foreground">{village.district}, {village.state}</p>
                         <div className="mt-2 space-y-1 text-xs">
                           <div className="flex justify-between">
-                            <span>Risk Score</span>
-                            <span className="font-semibold">{village.risk_score || (village as any).riskScore}/100</span>
-                          </div>
-                          {village.predictedDisease && village.predictedDisease !== "None" && (
-                            <div className="flex justify-between text-destructive font-semibold">
-                              <span>Disease</span>
-                              <span>{village.predictedDisease}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between">
-                            <span>Active Sensors</span>
-                            <span>{villageStats[village.id]?.sensors || 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Cases (7d)</span>
-                            <span>{villageStats[village.id]?.cases || 0}</span>
-                          </div>
+                             <span>{t('mapRiskScore')}</span>
+                             <span className="font-semibold">{village.risk_score || (village as any).riskScore}/100</span>
+                           </div>
+                           {village.predictedDisease && village.predictedDisease !== "None" && (
+                             <div className="flex justify-between text-destructive font-semibold">
+                               <span>{t('mapDisease')}</span>
+                               <span>{village.predictedDisease}</span>
+                             </div>
+                           )}
+                           <div className="flex justify-between">
+                             <span>{t('mapActiveSensors')}</span>
+                             <span>{villageStats[village.id]?.sensors || 0}</span>
+                           </div>
+                           <div className="flex justify-between">
+                             <span>{t('mapCases7d')}</span>
+                             <span>{villageStats[village.id]?.cases || 0}</span>
+                           </div>
                           {villageStats[village.id]?.avgPh != null && (
-                            <div className="flex justify-between">
-                              <span>Avg pH</span>
-                              <span>{villageStats[village.id]?.avgPh?.toFixed(1)}</span>
-                            </div>
-                          )}
+                             <div className="flex justify-between">
+                               <span>{t('mapAvgPh')}</span>
+                               <span>{villageStats[village.id]?.avgPh?.toFixed(1)}</span>
+                             </div>
+                           )}
                         </div>
                       </div>
                     </Popup>
@@ -242,15 +261,15 @@ const MapView = () => {
             <div className="flex flex-wrap gap-6 p-4 border-t border-border">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-destructive shadow-sm shadow-destructive/50" />
-                <span className="text-sm text-muted-foreground">🔴 Red Zone - High Risk (70-100) - Immediate Action</span>
+                <span className="text-sm text-muted-foreground">{t('mapRedZone')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-warning shadow-sm shadow-warning/50" />
-                <span className="text-sm text-muted-foreground">🟡 Yellow Zone - Medium Risk (40-69) - Monitor</span>
+                <span className="text-sm text-muted-foreground">{t('mapYellowZone')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-success shadow-sm shadow-success/50" />
-                <span className="text-sm text-muted-foreground">🟢 Green Zone - Safe (0-39)</span>
+                <span className="text-sm text-muted-foreground">{t('mapGreenZone')}</span>
               </div>
             </div>
           </Card>
@@ -260,14 +279,14 @@ const MapView = () => {
             <Card className="p-4">
               <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-primary" />
-                Monitored Locations ({villages.length})
+                {t('mapMonitoredLocs')} ({villages.length})
               </h3>
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : villages.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No locations registered</p>
+                <p className="text-sm text-muted-foreground text-center py-8">{t('mapNoLocs')}</p>
               ) : (
                 <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
                   {villages.map((village) => (
@@ -289,13 +308,13 @@ const MapView = () => {
 
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Droplet className="w-4 h-4 text-primary" />
-                          {villageStats[village.id]?.sensors || 0} Sensors
-                        </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <AlertTriangle className="w-4 h-4 text-warning" />
-                          {villageStats[village.id]?.cases || 0} Cases
-                        </div>
+                           <Droplet className="w-4 h-4 text-primary" />
+                           {villageStats[village.id]?.sensors || 0} {t('mapSensorsText')}
+                         </div>
+                         <div className="flex items-center gap-2 text-muted-foreground">
+                           <AlertTriangle className="w-4 h-4 text-warning" />
+                           {villageStats[village.id]?.cases || 0} {t('mapCasesText')}
+                         </div>
                         {villageStats[village.id]?.avgPh != null && (
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Thermometer className="w-4 h-4 text-secondary" />
@@ -312,7 +331,7 @@ const MapView = () => {
 
                       <div className="mt-3 pt-3 border-t border-border/50">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Risk Score</span>
+                          <span className="text-xs text-muted-foreground">{t('mapRiskScore')}</span>
                           <div className="flex items-center gap-2">
                             <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                               <div

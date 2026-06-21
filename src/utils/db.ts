@@ -5,7 +5,18 @@ const getFallback = <T>(key: string, defaultValue: T): T => {
   const stored = localStorage.getItem(`aquaguard_${key}`);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Merge new items if it's an array of objects with an 'id'
+      if (Array.isArray(parsed) && Array.isArray(defaultValue) && defaultValue.length > 0 && typeof defaultValue[0] === 'object' && 'id' in defaultValue[0]) {
+        const existingIds = new Set(parsed.map(item => item.id));
+        const newItems = defaultValue.filter(item => !existingIds.has(item.id));
+        if (newItems.length > 0) {
+          const merged = [...parsed, ...newItems];
+          localStorage.setItem(`aquaguard_${key}`, JSON.stringify(merged));
+          return merged as unknown as T;
+        }
+      }
+      return parsed;
     } catch {
       return stored as unknown as T;
     }
@@ -34,21 +45,21 @@ const MOCK_DISTRICTS = [
 ];
 
 const MOCK_VILLAGES = [
-  { id: "v1", districtId: "d1", name: "Dibrugarh Town", population: 15000, waterSources: 4, cases: 42, riskScore: 85, riskLevel: "high", alerts: 2, resourcesAssigned: 5, predictionScore: 92, predictedDisease: "Cholera", mainWaterSource: "Brahmaputra Canal" },
-  { id: "v2", districtId: "d1", name: "Barbaruah", population: 8200, waterSources: 3, cases: 18, riskScore: 48, riskLevel: "medium", alerts: 1, resourcesAssigned: 2, predictionScore: 54, predictedDisease: "Diarrhea", mainWaterSource: "Community Handpump" },
-  { id: "v3", districtId: "d1", name: "Khowang", population: 6400, waterSources: 2, cases: 8, riskScore: 28, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 22, predictedDisease: "None", mainWaterSource: "Open Well" },
-  { id: "v4", districtId: "d2", name: "Jorhat Center", population: 21000, waterSources: 6, cases: 35, riskScore: 52, riskLevel: "medium", alerts: 1, resourcesAssigned: 3, predictionScore: 61, predictedDisease: "Typhoid", mainWaterSource: "Municipal Pipeline" },
-  { id: "v5", districtId: "d2", name: "Mariani", population: 11500, waterSources: 4, cases: 24, riskScore: 72, riskLevel: "high", alerts: 2, resourcesAssigned: 4, predictionScore: 81, predictedDisease: "Hepatitis A", mainWaterSource: "River Stream" },
-  { id: "v6", districtId: "d2", name: "Teok", population: 7800, waterSources: 3, cases: 6, riskScore: 19, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 15, predictedDisease: "None", mainWaterSource: "Deep Tube Well" },
-  { id: "v7", districtId: "d3", name: "Kamalabari", population: 5200, waterSources: 2, cases: 12, riskScore: 35, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 30, predictedDisease: "None", mainWaterSource: "River Water" },
-  { id: "v8", districtId: "d3", name: "Garamur", population: 4900, waterSources: 2, cases: 9, riskScore: 22, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 18, predictedDisease: "None", mainWaterSource: "Hand Pump" },
-  { id: "v9", districtId: "d4", name: "Silchar Ward 5", population: 18500, waterSources: 5, cases: 58, riskScore: 89, riskLevel: "high", alerts: 3, resourcesAssigned: 6, predictionScore: 94, predictedDisease: "Cholera", mainWaterSource: "Pond Water" },
-  { id: "v10", districtId: "d5", name: "Tezpur Bazar", population: 14000, waterSources: 4, cases: 15, riskScore: 40, riskLevel: "medium", alerts: 0, resourcesAssigned: 2, predictionScore: 45, predictedDisease: "Dysentery", mainWaterSource: "Borewell Water" },
-  { id: "v11", districtId: "d7", name: "Karlambakkam", population: 6000, waterSources: 3, cases: 12, riskScore: 45, riskLevel: "medium", alerts: 1, resourcesAssigned: 2, predictionScore: 50, predictedDisease: "Diarrhea", mainWaterSource: "Borewell Water" },
-  { id: "v12", districtId: "d8", name: "Thiruper", population: 4500, waterSources: 2, cases: 5, riskScore: 25, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 20, predictedDisease: "None", mainWaterSource: "Community Handpump" },
-  { id: "v13", districtId: "d8", name: "Andhimanam", population: 5200, waterSources: 2, cases: 8, riskScore: 30, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 28, predictedDisease: "None", mainWaterSource: "Open Well" },
-  { id: "v14", districtId: "d8", name: "Pappankuzhi", population: 3800, waterSources: 1, cases: 2, riskScore: 15, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 12, predictedDisease: "None", mainWaterSource: "Hand Pump" },
-  { id: "v15", districtId: "d11", name: "Vengaivayal", population: 2900, waterSources: 1, cases: 14, riskScore: 65, riskLevel: "high", alerts: 1, resourcesAssigned: 2, predictionScore: 72, predictedDisease: "Typhoid", mainWaterSource: "Pond Water" },
+  { id: "v1", districtId: "d1", name: "Dibrugarh Town", population: 15000, waterSources: 4, cases: 42, riskScore: 85, riskLevel: "high", alerts: 2, resourcesAssigned: 5, predictionScore: 92, predictedDisease: "Cholera", mainWaterSource: "Brahmaputra Canal", latitude: 27.4728, longitude: 94.9120 },
+  { id: "v2", districtId: "d1", name: "Barbaruah", population: 8200, waterSources: 3, cases: 18, riskScore: 48, riskLevel: "medium", alerts: 1, resourcesAssigned: 2, predictionScore: 54, predictedDisease: "Diarrhea", mainWaterSource: "Community Handpump", latitude: 27.3915, longitude: 94.8872 },
+  { id: "v3", districtId: "d1", name: "Khowang", population: 6400, waterSources: 2, cases: 8, riskScore: 28, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 22, predictedDisease: "None", mainWaterSource: "Open Well", latitude: 27.2882, longitude: 94.8988 },
+  { id: "v4", districtId: "d2", name: "Jorhat Center", population: 21000, waterSources: 6, cases: 35, riskScore: 52, riskLevel: "medium", alerts: 1, resourcesAssigned: 3, predictionScore: 61, predictedDisease: "Typhoid", mainWaterSource: "Municipal Pipeline", latitude: 26.7509, longitude: 94.2037 },
+  { id: "v5", districtId: "d2", name: "Mariani", population: 11500, waterSources: 4, cases: 24, riskScore: 72, riskLevel: "high", alerts: 2, resourcesAssigned: 4, predictionScore: 81, predictedDisease: "Hepatitis A", mainWaterSource: "River Stream", latitude: 26.6667, longitude: 94.3333 },
+  { id: "v6", districtId: "d2", name: "Teok", population: 7800, waterSources: 3, cases: 6, riskScore: 19, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 15, predictedDisease: "None", mainWaterSource: "Deep Tube Well", latitude: 26.8202, longitude: 94.4312 },
+  { id: "v7", districtId: "d3", name: "Kamalabari", population: 5200, waterSources: 2, cases: 12, riskScore: 35, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 30, predictedDisease: "None", mainWaterSource: "River Water", latitude: 26.9634, longitude: 94.0506 },
+  { id: "v8", districtId: "d3", name: "Garamur", population: 4900, waterSources: 2, cases: 9, riskScore: 22, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 18, predictedDisease: "None", mainWaterSource: "Hand Pump", latitude: 26.9535, longitude: 94.0620 },
+  { id: "v9", districtId: "d4", name: "Silchar Ward 5", population: 18500, waterSources: 5, cases: 58, riskScore: 89, riskLevel: "high", alerts: 3, resourcesAssigned: 6, predictionScore: 94, predictedDisease: "Cholera", mainWaterSource: "Pond Water", latitude: 24.8333, longitude: 92.7789 },
+  { id: "v10", districtId: "d5", name: "Tezpur Bazar", population: 14000, waterSources: 4, cases: 15, riskScore: 40, riskLevel: "medium", alerts: 0, resourcesAssigned: 2, predictionScore: 45, predictedDisease: "Dysentery", mainWaterSource: "Borewell Water", latitude: 26.6528, longitude: 92.7926 },
+  { id: "v11", districtId: "d7", name: "Karlambakkam", population: 6000, waterSources: 3, cases: 12, riskScore: 45, riskLevel: "medium", alerts: 1, resourcesAssigned: 2, predictionScore: 50, predictedDisease: "Diarrhea", mainWaterSource: "Borewell Water", latitude: 13.1611, longitude: 79.9482 },
+  { id: "v12", districtId: "d8", name: "Thiruper", population: 4500, waterSources: 2, cases: 5, riskScore: 25, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 20, predictedDisease: "None", mainWaterSource: "Community Handpump", latitude: 12.8342, longitude: 79.7036 },
+  { id: "v13", districtId: "d8", name: "Andhimanam", population: 5200, waterSources: 2, cases: 8, riskScore: 30, riskLevel: "low", alerts: 0, resourcesAssigned: 1, predictionScore: 28, predictedDisease: "None", mainWaterSource: "Open Well", latitude: 12.7562, longitude: 79.8225 },
+  { id: "v14", districtId: "d8", name: "Pappankuzhi", population: 3800, waterSources: 1, cases: 2, riskScore: 15, riskLevel: "low", alerts: 0, resourcesAssigned: 0, predictionScore: 12, predictedDisease: "None", mainWaterSource: "Hand Pump", latitude: 12.8931, longitude: 79.8833 },
+  { id: "v15", districtId: "d11", name: "Vengaivayal", population: 2900, waterSources: 1, cases: 14, riskScore: 65, riskLevel: "high", alerts: 1, resourcesAssigned: 2, predictionScore: 72, predictedDisease: "Typhoid", mainWaterSource: "Pond Water", latitude: 11.6643, longitude: 78.1460 },
 ];
 
 const MOCK_PREDICTIONS = [

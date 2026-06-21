@@ -71,6 +71,10 @@ const AppContent = () => {
     }
   }, [user, loading, i18n]);
 
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
   if (loading) {
     return (
       <GamificationProvider>

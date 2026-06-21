@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Navigation } from "@/components/layout/Navigation";
 import { WaterQualityChart } from "@/components/dashboard/WaterQualityChart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -106,6 +107,7 @@ void loop() {
 }`;
 
 const IoTMonitoring = () => {
+  const { t } = useTranslation();
   const [devices, setDevices] = useState<any[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
   const [latestReadings, setLatestReadings] = useState<any[]>([]);
@@ -181,18 +183,18 @@ const IoTMonitoring = () => {
         <div className="mb-6">
           <h1 className="text-3xl font-black text-foreground mb-1 flex items-center gap-3">
             <Radio className="h-8 w-8 text-primary" />
-            IoT Sensor Network
+            {t('iotTitle', 'IoT Sensor Network')}
           </h1>
-          <p className="text-muted-foreground">Real-time water quality monitoring & ESP32 connection guide</p>
+          <p className="text-muted-foreground">{t('iotSubtitle', 'Real-time water quality monitoring & ESP32 connection guide')}</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
-            { label: "Total Devices", value: stats.total, icon: <Activity className="h-8 w-8" />, color: "text-primary", bg: "from-primary/15 to-primary/5 border-primary/20" },
-            { label: "Active / Online", value: stats.active, icon: <Wifi className="h-8 w-8" />, color: "text-green-500", bg: "from-green-500/15 to-green-600/5 border-green-500/20" },
-            { label: "Offline", value: stats.offline, icon: <WifiOff className="h-8 w-8" />, color: "text-red-500", bg: "from-red-500/15 to-red-600/5 border-red-500/20" },
-            { label: "Low Battery", value: stats.low_battery, icon: <BatteryLow className="h-8 w-8" />, color: "text-yellow-500", bg: "from-yellow-500/15 to-yellow-600/5 border-yellow-500/20" },
+            { label: t('iotTotalDevices', 'Total Devices'), value: stats.total, icon: <Activity className="h-8 w-8" />, color: "text-primary", bg: "from-primary/15 to-primary/5 border-primary/20" },
+            { label: t('iotActiveOnline', 'Active / Online'), value: stats.active, icon: <Wifi className="h-8 w-8" />, color: "text-green-500", bg: "from-green-500/15 to-green-600/5 border-green-500/20" },
+            { label: t('iotOffline', 'Offline'), value: stats.offline, icon: <WifiOff className="h-8 w-8" />, color: "text-red-500", bg: "from-red-500/15 to-red-600/5 border-red-500/20" },
+            { label: t('iotLowBattery', 'Low Battery'), value: stats.low_battery, icon: <BatteryLow className="h-8 w-8" />, color: "text-yellow-500", bg: "from-yellow-500/15 to-yellow-600/5 border-yellow-500/20" },
           ].map((s, i) => (
             <Card key={i} className={`p-5 bg-gradient-to-br ${s.bg} border`}>
               <div className="flex items-center justify-between">
@@ -208,10 +210,10 @@ const IoTMonitoring = () => {
 
         <Tabs defaultValue="live" className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-xl">
-            <TabsTrigger value="live">📡 Live Data</TabsTrigger>
-            <TabsTrigger value="devices">🔌 Devices</TabsTrigger>
-            <TabsTrigger value="connect">⚙️ Connect IoT</TabsTrigger>
-            <TabsTrigger value="predictions">🤖 AI</TabsTrigger>
+            <TabsTrigger value="live">📡 {t('liveData', 'Live Data')}</TabsTrigger>
+            <TabsTrigger value="devices">🔌 {t('devices', 'Devices')}</TabsTrigger>
+            <TabsTrigger value="connect">⚙️ {t('connectIot', 'Connect IoT')}</TabsTrigger>
+            <TabsTrigger value="predictions">🤖 {t('ai', 'AI')}</TabsTrigger>
           </TabsList>
 
           {/* Live Data */}
@@ -221,12 +223,12 @@ const IoTMonitoring = () => {
               <Card className="p-5">
                 <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
                   <Activity className="h-5 w-5 text-primary" />
-                  Latest Sensor Readings
+                  {t('iotTelemetryStream', 'Latest Sensor Readings')}
                   <Badge className="animate-pulse bg-green-500/20 text-green-500 border-green-500/30 ml-auto">LIVE</Badge>
                 </h3>
                 <div className="space-y-3 max-h-80 overflow-y-auto">
                   {latestReadings.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">No sensor data yet. Connect your IoT device to start streaming data.</p>
+                    <p className="text-sm text-muted-foreground text-center py-8">{t('iotNoDevices', 'No sensor data yet. Connect your IoT device to start streaming data.')}</p>
                   ) : latestReadings.map(r => {
                     const status = getReadingStatus(r);
                     return (
@@ -240,10 +242,10 @@ const IoTMonitoring = () => {
                         </div>
                         <div className="grid grid-cols-4 gap-2 text-center">
                           {[
-                            { label: "pH", value: r.ph?.toFixed(1) ?? '-' },
-                            { label: "TDS", value: r.tds ? `${r.tds}` : '-' },
-                            { label: "Turb", value: r.turbidity?.toFixed(1) ?? '-' },
-                            { label: "Temp", value: r.temperature ? `${r.temperature}°` : '-' },
+                            { label: t('iotPh', 'pH'), value: r.ph?.toFixed(1) ?? '-' },
+                            { label: t('iotTds', 'TDS'), value: r.tds ? `${r.tds}` : '-' },
+                            { label: t('iotTurbidity', 'Turbidity'), value: r.turbidity?.toFixed(1) ?? '-' },
+                            { label: t('iotTemp', 'Temp'), value: r.temperature ? `${r.temperature}°` : '-' },
                           ].map((m, i) => (
                             <div key={i} className="p-1.5 bg-muted/30 rounded-lg">
                               <p className="text-xs text-muted-foreground">{m.label}</p>
@@ -265,12 +267,12 @@ const IoTMonitoring = () => {
           {/* Devices */}
           <TabsContent value="devices">
             <Card className="p-6">
-              <h3 className="text-base font-bold text-foreground mb-4">Registered IoT Devices</h3>
+              <h3 className="text-base font-bold text-foreground mb-4">{t('iotActiveDevices', 'Registered IoT Devices')}</h3>
               {devices.length === 0 ? (
                 <div className="text-center py-12">
                   <Cpu className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-30" />
-                  <p className="text-muted-foreground mb-2">No devices registered yet</p>
-                  <p className="text-sm text-muted-foreground">Go to "Connect IoT" tab to set up your ESP32 sensor</p>
+                  <p className="text-muted-foreground mb-2">{t('iotNoDevicesRegistered', 'No devices registered yet')}</p>
+                  <p className="text-sm text-muted-foreground">{t('iotSetupInstructions', 'Go to "Connect IoT" tab to set up your ESP32 sensor')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -289,7 +291,7 @@ const IoTMonitoring = () => {
                               <span className="flex items-center gap-1">{device.communication_mode === 'wifi' ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}{device.communication_mode}</span>
                               <span className="flex items-center gap-1">{device.battery_level < 20 ? <BatteryLow className="h-3 w-3 text-red-500" /> : <Battery className="h-3 w-3 text-green-500" />}{device.battery_level}%</span>
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">Last seen: {device.last_communication ? new Date(device.last_communication).toLocaleString() : 'Never'}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('iotLastComm', 'Last seen')}: {device.last_communication ? new Date(device.last_communication).toLocaleString() : 'Never'}</p>
                           </div>
                         </div>
                         <Badge variant={device.status === 'active' ? 'default' : 'secondary'}>{device.status}</Badge>
@@ -305,9 +307,9 @@ const IoTMonitoring = () => {
           <TabsContent value="connect" className="space-y-6">
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               {[
-                { step: "1", title: "Hardware Setup", icon: <Cpu className="h-6 w-6" />, items: ["ESP32 Dev Board", "pH Sensor Module", "TDS Sensor", "DS18B20 Temperature", "Turbidity Sensor", "SIM800L GSM (optional)"] },
-                { step: "2", title: "Software Setup", icon: <Terminal className="h-6 w-6" />, items: ["Install Arduino IDE", "Add ESP32 board support", "Install ArduinoJson library", "Install WiFi library", "Copy code from tab below", "Update WiFi & Village ID"] },
-                { step: "3", title: "Connect & Test", icon: <Wifi className="h-6 w-6" />, items: ["Flash code to ESP32", "Open Serial Monitor", "Check WiFi connection", "Verify HTTP 201 response", "Data appears in Live tab", "Device shows as Active"] },
+                { step: "1", title: t('hardwareSetup', 'Hardware Setup'), icon: <Cpu className="h-6 w-6" />, items: ["ESP32 Dev Board", "pH Sensor Module", "TDS Sensor", "DS18B20 Temperature", "Turbidity Sensor", "SIM800L GSM (optional)"] },
+                { step: "2", title: t('softwareSetup', 'Software Setup'), icon: <Terminal className="h-6 w-6" />, items: ["Install Arduino IDE", "Add ESP32 board support", "Install ArduinoJson library", "Install WiFi library", "Copy code from tab below", "Update WiFi & Village ID"] },
+                { step: "3", title: t('connectTest', 'Connect & Test'), icon: <Wifi className="h-6 w-6" />, items: ["Flash code to ESP32", "Open Serial Monitor", "Check WiFi connection", "Verify HTTP 201 response", "Data appears in Live tab", "Device shows as Active"] },
               ].map((s, i) => (
                 <Card key={i} className="p-5 border-primary/20">
                   <div className="flex items-center gap-3 mb-4">
@@ -331,11 +333,11 @@ const IoTMonitoring = () => {
             <Card className="p-6">
               <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
                 <Cpu className="h-5 w-5 text-primary" />
-                ESP32 Wiring Diagram
+                {t('iotWiringDiagram', 'ESP32 Wiring Diagram')}
               </h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold text-foreground mb-3 text-sm">Pin Connections</h4>
+                  <h4 className="font-semibold text-foreground mb-3 text-sm">{t('iotPinConnections', 'Pin Connections')}</h4>
                   <div className="space-y-2">
                     {[
                       { pin: "GPIO 34 (ADC)", sensor: "pH Sensor → Analog Out", color: "bg-blue-500" },
@@ -353,7 +355,7 @@ const IoTMonitoring = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-3 text-sm">API Endpoint (Auto-configured)</h4>
+                  <h4 className="font-semibold text-foreground mb-3 text-sm">{t('iotApiEndpoint', 'API Endpoint (Auto-configured)')}</h4>
                   <div className="p-3 rounded-xl bg-muted/30 font-mono text-xs space-y-2">
                     <p className="text-primary">POST /rest/v1/water_quality_readings</p>
                     <p className="text-muted-foreground">Host: {SUPABASE_URL?.replace('https://', '')}</p>
@@ -371,8 +373,8 @@ const IoTMonitoring = () => {
                     </div>
                   </div>
                   <div className="mt-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
-                    <p className="text-xs text-green-600 font-medium">✅ Safe Thresholds</p>
-                    <p className="text-xs text-muted-foreground mt-1">pH: 6.5–8.5 | TDS: &lt;500ppm | Turbidity: &lt;4 NTU | Temp: 15–35°C</p>
+                    <p className="text-xs text-green-600 font-medium">{t('iotSafeThresholds', '✅ Safe Thresholds')}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('iotSafeThresholdsDesc', 'pH: 6.5–8.5 | TDS: <500ppm | Turbidity: <4 NTU | Temp: 15–35°C')}</p>
                   </div>
                 </div>
               </div>
@@ -383,11 +385,11 @@ const IoTMonitoring = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                   <Terminal className="h-5 w-5 text-primary" />
-                  ESP32 Arduino Code — Ready to Flash
+                  {t('iotEspCodeTitle', 'ESP32 Arduino Code — Ready to Flash')}
                 </h3>
                 <Button onClick={copyCode} variant="outline" size="sm" className="gap-2">
                   {copied ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  {copied ? 'Copied!' : 'Copy Code'}
+                  {copied ? t('iotCopied', 'Copied!') : t('iotCopyFirmware', 'Copy Code')}
                 </Button>
               </div>
               <div className="relative">
@@ -397,12 +399,12 @@ const IoTMonitoring = () => {
               </div>
               <div className="mt-4 grid md:grid-cols-2 gap-3">
                 <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                  <p className="text-xs font-semibold text-yellow-600 mb-1">⚠️ Before Flashing</p>
-                  <p className="text-xs text-muted-foreground">Replace YOUR_WIFI_SSID, YOUR_WIFI_PASSWORD, and YOUR_VILLAGE_UUID with actual values from your AquaGuard dashboard.</p>
+                  <p className="text-xs font-semibold text-yellow-600 mb-1">{t('iotBeforeFlashing', '⚠️ Before Flashing')}</p>
+                  <p className="text-xs text-muted-foreground">{t('iotBeforeFlashingDesc', 'Replace YOUR_WIFI_SSID, YOUR_WIFI_PASSWORD, and YOUR_VILLAGE_UUID with actual values from your AquaGuard dashboard.')}</p>
                 </div>
                 <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                  <p className="text-xs font-semibold text-blue-600 mb-1">📦 Required Libraries</p>
-                  <p className="text-xs text-muted-foreground">ArduinoJson (v6+), HTTPClient (built-in), WiFi (built-in), OneWire + DallasTemperature (for DS18B20)</p>
+                  <p className="text-xs font-semibold text-blue-600 mb-1">{t('iotRequiredLibraries', '📦 Required Libraries')}</p>
+                  <p className="text-xs text-muted-foreground">{t('iotRequiredLibrariesDesc', 'ArduinoJson (v6+), HTTPClient (built-in), WiFi (built-in), OneWire + DallasTemperature (for DS18B20)')}</p>
                 </div>
               </div>
             </Card>
@@ -413,11 +415,11 @@ const IoTMonitoring = () => {
             <Card className="p-6">
               <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
-                AI Outbreak Predictions
+                {t('symptomClusterAi', 'AI Outbreak Predictions')}
               </h3>
               <div className="space-y-4">
                 {predictions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">No AI predictions generated yet. Data from sensors triggers automatic predictions.</p>
+                  <p className="text-sm text-muted-foreground text-center py-8">{t('iotNoPredictions', 'No AI predictions generated yet. Data from sensors triggers automatic predictions.')}</p>
                 ) : predictions.map(p => (
                   <div key={p.id} className="border border-border rounded-xl p-4 hover:bg-muted/30 transition-colors">
                     <div className="flex justify-between items-start mb-2">
@@ -426,16 +428,16 @@ const IoTMonitoring = () => {
                         <p className="text-xs text-muted-foreground">{p.prediction_type}</p>
                       </div>
                       <Badge variant="outline" className="text-xs">
-                        {Math.round(p.confidence_score * 100)}% confidence
+                        {Math.round(p.confidence_score * 100)}% {t('confidence', 'confidence')}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="p-2 bg-muted/30 rounded-lg">
-                        <p className="text-muted-foreground">Predicted Risk</p>
+                        <p className="text-muted-foreground">{t('predictedRisk', 'Predicted Risk')}</p>
                         <p className="font-bold text-foreground">{p.prediction_data?.predicted_risk || 'N/A'}</p>
                       </div>
                       <div className="p-2 bg-muted/30 rounded-lg">
-                        <p className="text-muted-foreground">Trend</p>
+                        <p className="text-muted-foreground">{t('trend', 'Trend')}</p>
                         <p className="font-bold text-foreground">{p.prediction_data?.trend || 'stable'}</p>
                       </div>
                     </div>
