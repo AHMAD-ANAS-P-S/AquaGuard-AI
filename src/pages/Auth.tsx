@@ -273,16 +273,12 @@ const Auth = () => {
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 relative z-10">
         <div className="max-w-lg text-center">
           <div className="relative inline-block mb-8">
-            <div className="w-32 h-32 rounded-3xl flex items-center justify-center relative"
-              style={{
-                background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))',
-                boxShadow: '0 20px 60px hsl(200,85%,45% / 0.4), 0 0 0 1px hsl(200,85%,55% / 0.2)',
-                transform: 'perspective(500px) rotateX(5deg) rotateY(-5deg)',
-              }}>
-              <Droplets className="w-16 h-16 text-white" />
-            </div>
-            <div className="absolute -inset-4 rounded-3xl opacity-20 blur-xl"
-              style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }} />
+            <img
+              src="/logo.png"
+              alt="AquaGuard AI Logo"
+              className="w-36 h-36 object-contain drop-shadow-2xl"
+              style={{ filter: 'drop-shadow(0 0 24px hsl(200,85%,55% / 0.5))' }}
+            />
           </div>
 
           <h1 className="text-5xl font-black text-white mb-3 tracking-tight">
@@ -327,9 +323,8 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Mobile header */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3"
-              style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }}>
-              <Droplets className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center mb-3">
+              <img src="/logo.png" alt="AquaGuard AI Logo" className="w-16 h-16 object-contain" />
             </div>
             <h1 className="text-3xl font-black text-white">{i18n.language === 'ta' ? t('auth.appTitle') : 'AquaGuard AI'}</h1>
           </div>
