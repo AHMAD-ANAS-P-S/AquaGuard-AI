@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Mail, Phone, MapPin, Save } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { db } from "@/utils/db";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -28,8 +29,11 @@ const Profile = () => {
   }, [user]);
 
   const loadVillages = async () => {
-    const { data } = await supabase.from("villages").select("id, name");
-    if (data) setVillages(data);
+    const data = await db.getVillages();
+    if (data) {
+      const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name));
+      setVillages(sorted);
+    }
   };
 
   const loadProfile = async () => {

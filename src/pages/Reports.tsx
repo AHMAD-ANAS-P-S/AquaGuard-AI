@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Camera, Send, Upload, X, MapPin, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import { db } from "@/utils/db";
 
 const Reports = () => {
   const { t } = useTranslation();
@@ -72,8 +73,11 @@ const Reports = () => {
   }, []);
 
   const loadVillages = async () => {
-    const { data } = await supabase.from("villages").select("id, name").order("name");
-    if (data) setVillages(data);
+    const data = await db.getVillages();
+    if (data) {
+      const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name));
+      setVillages(sorted);
+    }
   };
 
   const loadReports = async () => {

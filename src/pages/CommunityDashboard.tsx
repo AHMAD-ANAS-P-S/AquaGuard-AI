@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { MultilingualVoiceAssistant } from "@/components/MultilingualVoiceAssistant";
 import { RealtimeNotifications } from "@/components/RealtimeNotifications";
+import { db } from "@/utils/db";
 
 const CommunityDashboard = () => {
   const { signOut } = useAuth();
@@ -34,8 +35,15 @@ const CommunityDashboard = () => {
   }, []);
 
   const loadCommunityData = async () => {
-    const { data: villages } = await supabase.from('villages').select('*').order('risk_score', { ascending: false }).limit(1);
-    if (villages && villages.length > 0) setVillageRisk(villages[0]);
+    const villages = await db.getVillages();
+    const sorted = [...villages].sort((a, b) => (b.riskScore || b.risk_score || 0) - (a.riskScore || a.risk_score || 0));
+    if (sorted.length > 0) {
+      setVillageRisk({
+        ...sorted[0],
+        risk_score: sorted[0].riskScore ?? sorted[0].risk_score,
+        risk_level: sorted[0].riskLevel ?? sorted[0].risk_level
+      });
+    }
 
     const { data: alerts } = await supabase.from('alerts').select('*, villages(name)').eq('status', 'active').order('created_at', { ascending: false }).limit(5);
     setRecentAlerts(alerts || []);

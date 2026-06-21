@@ -11,6 +11,7 @@ import { WaterQualityChart } from "@/components/dashboard/WaterQualityChart";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { db } from "@/utils/db";
 
 const generatePredictionData = () => {
   const days = [];
@@ -66,32 +67,26 @@ const OfficialDashboard = () => {
   }, []);
 
   const loadOfficialData = async () => {
-    const [alertsRes, reportsRes, devicesRes, highRiskRes, villagesRes, logsRes, predsRes, recentRes] = await Promise.all([
+    const [alertsRes, reportsRes, devicesRes, villagesData, logsRes, predsRes, recentRes] = await Promise.all([
       supabase.from('alerts').select('*', { count: 'exact', head: true }).eq('status', 'active'),
       supabase.from('health_reports').select('*', { count: 'exact', head: true }),
       supabase.from('iot_devices').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-      supabase.from('villages').select('*', { count: 'exact', head: true }).eq('risk_level', 'high'),
-      supabase.from('villages').select('*, districts(name)').order('risk_score', { ascending: false }).limit(10),
+      db.getVillages(),
       supabase.from('action_logs').select('*, alerts(title), profiles(full_name)').order('created_at', { ascending: false }).limit(8),
       supabase.from('ai_predictions').select('*, villages(name)').order('predicted_at', { ascending: false }).limit(5),
       supabase.from('health_reports').select('*, villages(name)').order('created_at', { ascending: false }).limit(6),
     ]);
 
+    const highRiskAreas = villagesData.filter(v => (v.riskLevel || v.risk_level) === 'high').length;
+    const sortedVillages = [...villagesData].sort((a, b) => (b.riskScore || b.risk_score || 0) - (a.riskScore || a.risk_score || 0)).slice(0, 10);
+
     setStats({
       activeAlerts: alertsRes.count || 0,
       totalReports: reportsRes.count || 0,
       iotDevices: devicesRes.count || 0,
-      highRiskAreas: highRiskRes.count || 0,
+      highRiskAreas: highRiskAreas,
     });
-    if (villagesRes.data) {
-      const mapped = (villagesRes.data as any[]).map(v => ({
-        ...v,
-        district: v.districts?.name || null
-      }));
-      setVillages(mapped);
-    } else {
-      setVillages([]);
-    }
+    setVillages(sortedVillages);
     setActionLogs(logsRes.data || []);
     setPredictions(predsRes.data || []);
     setRecentReports(recentRes.data || []);

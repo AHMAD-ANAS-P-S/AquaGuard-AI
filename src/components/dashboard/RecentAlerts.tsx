@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 interface Alert {
   id: string;
@@ -63,6 +64,7 @@ const mockAlerts: Alert[] = [
 ];
 
 export const RecentAlerts = () => {
+  const { t } = useTranslation();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isDemo, setIsDemo] = useState(false);
 
@@ -70,10 +72,7 @@ export const RecentAlerts = () => {
     const fetchAlerts = async () => {
       const { data } = await supabase
         .from("alerts")
-        .select(`
-          *,
-          villages(name)
-        `)
+        .select(`*, villages(name)`)
         .order("created_at", { ascending: false })
         .limit(5);
 
@@ -93,10 +92,15 @@ export const RecentAlerts = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, () => fetchAlerts())
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  const getSeverityLabel = (severity: string) => {
+    if (severity === 'critical') return t('critical');
+    if (severity === 'high') return t('high');
+    if (severity === 'medium') return t('medium');
+    return t('low');
+  };
 
   return (
     <Card className="p-6">
@@ -104,20 +108,22 @@ export const RecentAlerts = () => {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-foreground">Recent Alerts</h3>
+              <h3 className="text-lg font-semibold text-foreground">{t('recentAlerts')}</h3>
               {isDemo && (
                 <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/20">
-                  Demo Data
+                  Demo
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">Real-time health warnings</p>
+            <p className="text-sm text-muted-foreground">{t('activeAlerts')}</p>
           </div>
           <Bell className="w-5 h-5 text-primary" />
         </div>
 
         <div className="space-y-3">
-          {alerts.map((alert) => (
+          {alerts.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">{t('noAlerts')}</p>
+          ) : alerts.map((alert) => (
             <div
               key={alert.id}
               className="flex gap-3 p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
@@ -129,7 +135,7 @@ export const RecentAlerts = () => {
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-foreground">{alert.title}</p>
                   <Badge variant="outline" className={getSeverityColor(alert.severity)}>
-                    {alert.severity}
+                    {getSeverityLabel(alert.severity)}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">{alert.villages?.name}</p>

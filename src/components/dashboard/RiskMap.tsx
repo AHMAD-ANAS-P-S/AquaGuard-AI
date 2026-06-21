@@ -2,38 +2,21 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Village {
-  id: string;
-  name: string;
-  district: string;
-  risk_level: string;
-  risk_score: number;
-}
+import { useTranslation } from "react-i18next";
+import { db } from "@/utils/db";
 
 const getRiskColor = (risk: string) => {
   switch (risk) {
-    case "high":
-      return "bg-destructive text-destructive-foreground";
-    case "medium":
-      return "bg-warning text-warning-foreground";
-    case "low":
-      return "bg-success text-success-foreground";
-    default:
-      return "bg-muted text-muted-foreground";
+    case "high": return "bg-destructive text-destructive-foreground";
+    case "medium": return "bg-warning text-warning-foreground";
+    case "low": return "bg-success text-success-foreground";
+    default: return "bg-muted text-muted-foreground";
   }
 };
 
-const mockVillages: Village[] = [
-  { id: "v1", name: "Dibrugarh Town", district: "Dibrugarh", risk_level: "high", risk_score: 88 },
-  { id: "v2", name: "Moranhat", district: "Dibrugarh", risk_level: "medium", risk_score: 54 },
-  { id: "v3", name: "Chabua", district: "Dibrugarh", risk_level: "low", risk_score: 22 },
-  { id: "v4", name: "Naharkatia", district: "Dibrugarh", risk_level: "low", risk_score: 15 },
-  { id: "v5", name: "Duliajan", district: "Dibrugarh", risk_level: "medium", risk_score: 47 },
-];
-
 export const RiskMap = () => {
-  const [villages, setVillages] = useState<Village[]>([]);
+  const { t } = useTranslation();
+  const [villages, setVillages] = useState<any[]>([]);
   const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
@@ -47,7 +30,9 @@ export const RiskMap = () => {
         setVillages(data);
         setIsDemo(false);
       } else {
-        setVillages(mockVillages);
+        // Use local db mock data
+        const local = await db.getVillages();
+        setVillages(local.sort((a: any, b: any) => (b.riskScore || 0) - (a.riskScore || 0)).slice(0, 8));
         setIsDemo(true);
       }
     };
@@ -59,29 +44,34 @@ export const RiskMap = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "villages" }, () => fetchVillages())
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  const getRiskLabel = (risk: string) => {
+    if (risk === 'high') return t('high');
+    if (risk === 'medium') return t('medium');
+    return t('low');
+  };
 
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Risk Assessment Map</h3>
-            <p className="text-sm text-muted-foreground">Current disease outbreak risk by region</p>
+            <h3 className="text-lg font-semibold text-foreground">{t('outbreakRiskMap')}</h3>
+            <p className="text-sm text-muted-foreground">{t('checkRiskStatus')}</p>
           </div>
           {isDemo && (
             <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/20">
-              Demo Data
+              Demo
             </Badge>
           )}
         </div>
         
         <div className="space-y-3">
-          {villages.map((village) => {
-            const risk = village.risk_level || "low";
+          {villages.map((village: any) => {
+            const risk = village.risk_level || village.riskLevel || "low";
+            const score = village.risk_score || village.riskScore || 0;
             return (
               <div
                 key={village.id}
@@ -89,10 +79,10 @@ export const RiskMap = () => {
               >
                 <div className="flex-1">
                   <p className="font-medium text-foreground">{village.name}</p>
-                  <p className="text-sm text-muted-foreground">Risk Score: {village.risk_score || 0}/100</p>
+                  <p className="text-sm text-muted-foreground">{t('mapRiskScore')}: {score}/100</p>
                 </div>
                 <Badge className={getRiskColor(risk)}>
-                  {risk.toUpperCase()}
+                  {getRiskLabel(risk).toUpperCase()}
                 </Badge>
               </div>
             );
@@ -102,15 +92,15 @@ export const RiskMap = () => {
         <div className="flex gap-4 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-destructive"></div>
-            <span className="text-sm text-muted-foreground">High Risk</span>
+            <span className="text-sm text-muted-foreground">{t('highRisk')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-warning"></div>
-            <span className="text-sm text-muted-foreground">Medium Risk</span>
+            <span className="text-sm text-muted-foreground">{t('medium')} {t('riskLevel')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-success"></div>
-            <span className="text-sm text-muted-foreground">Low Risk</span>
+            <span className="text-sm text-muted-foreground">{t('low')} {t('riskLevel')}</span>
           </div>
         </div>
       </div>

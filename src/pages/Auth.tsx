@@ -18,6 +18,9 @@ type AuthStep = 'credentials' | 'otp-verify';
 const languages = [
   { code: 'en', name: 'English', nativeName: 'English' },
   { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
 ];
 
 const Auth = () => {

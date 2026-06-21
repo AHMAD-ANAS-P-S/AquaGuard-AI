@@ -9,6 +9,7 @@ import { Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
+import { db } from "@/utils/db";
 
 const ExportReports = () => {
   const { t } = useTranslation();
@@ -22,14 +23,15 @@ const ExportReports = () => {
 
   useEffect(() => {
     const loadVillages = async () => {
-      const { data } = await supabase.from("villages").select("id, name, districts(name)").order("name");
+      const data = await db.getVillages();
       if (data) {
-        const mapped = (data as any[]).map(v => ({
+        const mapped = data.map(v => ({
           id: v.id,
           name: v.name,
-          district: v.districts?.name || null
+          district: v.district || null
         }));
-        setVillages(mapped);
+        const sorted = [...mapped].sort((a, b) => a.name.localeCompare(b.name));
+        setVillages(sorted);
       }
     };
     loadVillages();
