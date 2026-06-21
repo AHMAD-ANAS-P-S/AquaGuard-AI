@@ -86,7 +86,7 @@ const Auth = () => {
         password: loginData.password,
       });
       if (error) {
-        toast({ variant: "destructive", title: "Login Failed", description: error.message });
+        toast({ variant: "destructive", title: "Access Denied", description: error.message });
         setLoading(false);
         return;
       }
