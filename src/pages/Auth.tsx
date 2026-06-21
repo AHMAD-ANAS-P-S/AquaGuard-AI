@@ -286,10 +286,10 @@ const Auth = () => {
           </div>
 
           <h1 className="text-5xl font-black text-white mb-3 tracking-tight">
-            Aqua<span style={{ color: 'hsl(200,85%,60%)' }}>Guard</span> AI
+            {i18n.language === 'ta' ? t('auth.appTitle') : (<>Aqua<span style={{ color: 'hsl(200,85%,60%)' }}>Guard</span> AI</>)}
           </h1>
           <p className="text-xl text-white/70 mb-8 leading-relaxed">
-            {t('auth.subtitle', 'Smart Community Health Monitoring & Early Warning System for Water-Borne Diseases')}
+            {t('auth.subtitle')}
           </p>
 
           <div className="flex flex-wrap gap-3 justify-center mb-8">
@@ -331,7 +331,7 @@ const Auth = () => {
               style={{ background: 'linear-gradient(135deg, hsl(200,85%,45%), hsl(155,65%,50%))' }}>
               <Droplets className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-black text-white">AquaGuard AI</h1>
+            <h1 className="text-3xl font-black text-white">{i18n.language === 'ta' ? t('auth.appTitle') : 'AquaGuard AI'}</h1>
           </div>
 
           <div className="backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
