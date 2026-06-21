@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Shield, Eye, EyeOff, ArrowLeft, Droplets, Wifi, Activity, Globe } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useTranslation } from "react-i18next";
@@ -22,7 +23,8 @@ const languages = [
 const Auth = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { setValidating } = useAuth();
+  const { user, validating, setValidating } = useAuth();
+  const { roles, loading: roleLoading } = useUserRole();
   const { toast, dismiss } = useToast();
   const [loading, setLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>('credentials');
@@ -37,6 +39,16 @@ const Auth = () => {
   useEffect(() => {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  // Handle already logged-in users landing on /auth
+  useEffect(() => {
+    if (user && !loading && !roleLoading && !validating && roles.length > 0) {
+      if (roles.includes('admin')) navigate('/admin-dashboard', { replace: true });
+      else if (roles.includes('official') || roles.includes('health_official')) navigate('/official-dashboard', { replace: true });
+      else if (roles.includes('clinic_staff')) navigate('/clinic-dashboard', { replace: true });
+      else navigate('/community-dashboard', { replace: true });
+    }
+  }, [user, loading, roleLoading, validating, roles, navigate]);
 
   useEffect(() => {
     if (resendTimer > 0) {
@@ -135,7 +147,10 @@ const Auth = () => {
 
         // Role verified — allow navigation
         setValidating(false);
-        navigate('/dashboard', { replace: true });
+        if (existingRole === 'admin') navigate('/admin-dashboard', { replace: true });
+        else if (existingRole === 'official' || existingRole === 'health_official') navigate('/official-dashboard', { replace: true });
+        else if (existingRole === 'clinic_staff') navigate('/clinic-dashboard', { replace: true });
+        else navigate('/community-dashboard', { replace: true });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
@@ -161,7 +176,10 @@ const Auth = () => {
       try {
         const existingRole = await checkExistingRole(user.id);
         if (existingRole) {
-          navigate('/dashboard', { replace: true });
+          if (existingRole === 'admin') navigate('/admin-dashboard', { replace: true });
+          else if (existingRole === 'official' || existingRole === 'health_official') navigate('/official-dashboard', { replace: true });
+          else if (existingRole === 'clinic_staff') navigate('/clinic-dashboard', { replace: true });
+          else navigate('/community-dashboard', { replace: true });
           return;
         } else {
           await supabase.auth.signOut();

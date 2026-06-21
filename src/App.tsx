@@ -97,7 +97,7 @@ const AppContent = () => {
       {user && <GuidanceBot />}
       {user && <Navigation />}
       <Routes>
-        <Route path="/auth" element={user && !validating ? <Navigate to="/" replace /> : <Auth />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/" element={user ? <Index /> : <Navigate to="/auth" replace />} />
         <Route path="/reports" element={user ? <Reports /> : <Navigate to="/auth" replace />} />
         <Route path="/alerts" element={user ? <Alerts /> : <Navigate to="/auth" replace />} />
@@ -155,10 +155,10 @@ const AppContent = () => {
         />
         
         <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
-        <Route path="/community-dashboard" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/official-dashboard" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/admin-dashboard" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/clinic-dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/community-dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/official-dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/admin-dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
+        <Route path="/clinic-dashboard" element={user ? <Dashboard /> : <Navigate to="/auth" replace />} />
         
         <Route 
           path="/image-analysis" 

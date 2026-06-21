@@ -41,7 +41,7 @@ export const Navigation = () => {
   const getNavItems = () => {
     if (roles.includes('admin')) {
       return [
-        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/admin-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
         { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
         { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
         { path: "/iot-monitoring", label: t('nav.iotMonitoring'), icon: Activity },
@@ -53,7 +53,7 @@ export const Navigation = () => {
     }
     if (roles.includes('official') || roles.includes('health_official')) {
       return [
-        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/official-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
         { path: "/alerts", label: t('nav.manageAlerts'), icon: Bell },
         { path: "/alert-escalation", label: t('nav.escalation'), icon: AlertCircle },
         { path: "/reports", label: t('nav.reports'), icon: FileText },
@@ -63,7 +63,7 @@ export const Navigation = () => {
     }
     if (roles.includes('clinic_staff')) {
       return [
-        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/clinic-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
         { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
         { path: "/map", label: t('nav.mapView'), icon: Map },
         { path: "/image-analysis", label: t('nav.imageAnalysis'), icon: Microscope },
@@ -71,14 +71,14 @@ export const Navigation = () => {
     }
     if (roles.includes('asha_worker')) {
       return [
-        { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+        { path: "/community-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
         { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
         { path: "/alerts", label: t('nav.alerts'), icon: Bell },
       ];
     }
     // Default to Volunteer
     return [
-      { path: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+      { path: "/community-dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
       { path: "/reports", label: t('nav.reportIssue'), icon: FileText },
       { path: "/map", label: t('nav.mapView'), icon: Map },
       { path: "/awareness", label: t('nav.learnEarn'), icon: Book },
