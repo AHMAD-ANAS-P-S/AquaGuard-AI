@@ -71,8 +71,8 @@ const Auth = () => {
         console.error('[Auth] OTP email edge-function error:', error);
         toast({
           variant: "destructive",
-          title: "OTP Delivery Issue",
-          description: `Could not send verification email: ${error.message ?? 'Unknown error'}. Check your edge function logs.`,
+          title: t('auth.otpDeliveryIssueTitle'),
+          description: t('auth.otpDeliveryIssueDesc'),
         });
         return false;
       }
@@ -82,8 +82,8 @@ const Auth = () => {
       console.error('[Auth] Failed to invoke send-otp-email:', msg);
       toast({
         variant: "destructive",
-        title: "OTP Delivery Failed",
-        description: `Could not reach the email service: ${msg}`,
+        title: t('auth.otpDeliveryFailedTitle'),
+        description: t('auth.otpDeliveryFailedDesc'),
       });
       return false;
     }
@@ -115,7 +115,7 @@ const Auth = () => {
       if (error) {
         // Wrong credentials — Supabase never created a session, no redirect risk
         setValidating(false);
-        toast({ variant: "destructive", title: "Access Denied", description: error.message });
+        toast({ variant: "destructive", title: t('auth.loginFailedTitle'), description: t('auth.loginFailedDesc') });
         setLoading(false);
         return;
       }
@@ -129,8 +129,8 @@ const Auth = () => {
           setValidating(false);
           toast({
             variant: "destructive",
-            title: "Security Check Failed",
-            description: `Could not verify user roles: ${err.message || 'Unknown database error'}.`
+            title: t('auth.securityCheckFailedTitle'),
+            description: t('auth.securityCheckFailedDesc')
           });
           setLoading(false);
           return;
@@ -141,8 +141,8 @@ const Auth = () => {
           setValidating(false);
           toast({
             variant: "destructive",
-            title: "Access Denied",
-            description: "No role assigned to this account. Please contact an administrator."
+            title: t('auth.accessDeniedTitle'),
+            description: t('auth.accessDeniedDesc')
           });
           setLoading(false);
           return;
@@ -159,7 +159,7 @@ const Auth = () => {
       const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
       console.error('[Auth] handleLogin error:', msg);
       setValidating(false);
-      toast({ variant: "destructive", title: "Login Error", description: msg });
+      toast({ variant: "destructive", title: t('auth.loginErrorTitle'), description: t('auth.loginErrorDesc') });
     }
     setLoading(false);
   };
@@ -167,7 +167,7 @@ const Auth = () => {
   const handleVerifyOTP = async () => {
     setLoading(true);
     if (otpCode !== generatedOtp) {
-      toast({ variant: "destructive", title: "Invalid OTP", description: "The code you entered is incorrect." });
+      toast({ variant: "destructive", title: t('auth.invalidOtpTitle'), description: t('auth.invalidOtpDesc') });
       setLoading(false);
       return;
     }
@@ -188,8 +188,8 @@ const Auth = () => {
           await supabase.auth.signOut();
           toast({
             variant: "destructive",
-            title: "Access Denied",
-            description: "No role assigned to this account."
+            title: t('auth.accessDeniedTitle'),
+            description: t('auth.accessDeniedDesc')
           });
           navigate('/auth', { replace: true });
           return;
@@ -198,8 +198,8 @@ const Auth = () => {
         await supabase.auth.signOut();
         toast({
           variant: "destructive",
-          title: "Session Error",
-          description: `Failed to confirm roles: ${err.message || 'Unknown error'}`
+          title: t('auth.sessionErrorTitle'),
+          description: t('auth.sessionErrorDesc')
         });
         navigate('/auth', { replace: true });
         return;
@@ -214,7 +214,7 @@ const Auth = () => {
     setGeneratedOtp(otp);
     setResendTimer(60);
     await sendOtpEmail(pendingEmail, otp);
-    toast({ title: "🔐 New Code Sent", description: "Check your email for the new OTP.", duration: 10000 });
+    toast({ title: t('auth.newCodeSentTitle'), description: t('auth.newCodeSentDesc'), duration: 10000 });
   };
 
   const handleBackToLogin = async () => {
@@ -318,7 +318,7 @@ const Auth = () => {
           <div className="relative inline-block mb-8">
             <img
               src="/logo.png"
-              alt="AquaGuard AI Logo"
+              alt={t('branding.logoAlt')}
               className="w-36 h-36 object-contain drop-shadow-2xl"
               style={{ filter: 'drop-shadow(0 0 24px hsl(200,85%,55% / 0.5))' }}
             />
@@ -326,17 +326,17 @@ const Auth = () => {
 
           {/* Hero Title */}
           <h1 className="auth-hero-title font-black text-white mb-3 tracking-tight">
-            {i18n.language === 'ta' ? t('auth.appTitle') : (<>Aqua<span style={{ color: 'hsl(200,85%,60%)' }}>Guard</span> AI</>)}
+            {t('branding.title')}
           </h1>
           <p className="auth-subtitle text-white/70 mb-8 leading-relaxed">
-            {t('auth.subtitle')}
+            {t('branding.subtitle')}
           </p>
 
           {/* Feature Badges */}
           <div className="auth-feature-badges flex flex-wrap gap-3 justify-center mb-8">
             {[
               { icon: <Activity className="w-4 h-4 flex-shrink-0" />, text: t('auth.realTimeIot') },
-              { icon: <Shield className="w-4 h-4 flex-shrink-0" />, text: t('auth.aiPrediction') },
+              { icon: <Shield className="w-4 h-4 flex-shrink-0" />, text: t('branding.aiPrediction') },
               { icon: <Wifi className="w-4 h-4 flex-shrink-0" />, text: t('auth.forecast714') },
             ].map((f, i) => (
               <div key={i} className="auth-feature-badge flex items-center justify-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
@@ -370,9 +370,9 @@ const Auth = () => {
           {/* Mobile header */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center mb-3">
-              <img src="/logo.png" alt="AquaGuard AI Logo" className="w-16 h-16 object-contain" />
+              <img src="/logo.png" alt={t('branding.logoAlt')} className="w-16 h-16 object-contain" />
             </div>
-            <h1 className="text-3xl font-black text-white">{i18n.language === 'ta' ? t('auth.appTitle') : 'AquaGuard AI'}</h1>
+            <h1 className="text-3xl font-black text-white">{t('branding.title')}</h1>
           </div>
 
           <div className="auth-login-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl"
@@ -457,7 +457,7 @@ const Auth = () => {
             </form>
 
             <p className="text-center text-xs text-white/30 mt-6">
-              {t('auth.securedByMfa')}
+              {t('branding.version')}
             </p>
           </div>
         </div>

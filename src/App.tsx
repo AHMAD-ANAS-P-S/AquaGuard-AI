@@ -56,7 +56,7 @@ const RoleRoute = ({ children, allowedRoles }: { children: React.ReactNode; allo
 
 const AppContent = () => {
   const { user, loading, validating } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (!loading) {
@@ -83,7 +83,7 @@ const AppContent = () => {
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-sm text-muted-foreground">Loading AquaGuard AI...</p>
+            <p className="text-sm text-muted-foreground">{t('loading')} {t('branding.title')}...</p>
           </div>
         </div>
       </GamificationProvider>

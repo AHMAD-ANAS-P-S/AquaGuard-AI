@@ -23,7 +23,7 @@ const char* password = "YOUR_WIFI_PASSWORD";
 const char* SENSOR_ID = "SENSOR_001";  // Unique sensor ID
 const char* VILLAGE_ID = "YOUR_VILLAGE_UUID";  // From AquaGuard dashboard
 
-// AquaGuard AI Backend
+// Backend integration
 const char* SUPABASE_URL = "${SUPABASE_URL}";
 const char* SUPABASE_KEY = "${SUPABASE_ANON_KEY}";
 
@@ -410,7 +410,7 @@ const IoTMonitoring = () => {
             </Card>
           </TabsContent>
 
-          {/* AI Predictions */}
+          {/* Prediction panel */}
           <TabsContent value="predictions">
             <Card className="p-6">
               <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">

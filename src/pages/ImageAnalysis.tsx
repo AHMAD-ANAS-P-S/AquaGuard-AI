@@ -276,7 +276,7 @@ const ImageAnalysis = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="font-medium text-foreground text-xs uppercase font-semibold text-muted-foreground">AI Prediction & Findings</h4>
+                  <h4 className="font-medium text-foreground text-xs uppercase font-semibold text-muted-foreground">{t('branding.aiPrediction')} & Findings</h4>
                   <p className="text-sm text-foreground/80 leading-relaxed bg-muted/20 p-3 rounded-xl border border-border/40">{analysisResult.summary || "No findings available."}</p>
                 </div>
 

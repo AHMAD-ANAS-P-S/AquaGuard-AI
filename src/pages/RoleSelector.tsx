@@ -151,7 +151,7 @@ const RoleSelector = () => {
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh]">
               <DialogHeader>
-                <DialogTitle>AquaGuard AI - Complete Guide</DialogTitle>
+                <DialogTitle>{t('branding.title')} - {t('roleGuideTitle', 'Complete Guide')}</DialogTitle>
                 <DialogDescription>
                   Learn how to use all features based on your role
                 </DialogDescription>
@@ -189,7 +189,7 @@ const RoleSelector = () => {
                       <li><strong>📊 Analytics:</strong> Water quality trends (pH, TDS, temperature)</li>
                       <li><strong>🚨 Alert Management:</strong> Review and respond to active alerts</li>
                       <li><strong>🔄 Auto-Escalation:</strong> ASHA → District → State escalation system</li>
-                      <li><strong>🤖 AI Predictions:</strong> View outbreak probability predictions</li>
+                      <li><strong>🤖 {t('branding.aiPrediction')}:</strong> View outbreak probability predictions</li>
                       <li><strong>📥 Export Reports:</strong> Download CSV/PDF reports</li>
                       <li><strong>📡 IoT Monitoring:</strong> Track ESP32 sensors in real-time</li>
                     </ul>
@@ -258,7 +258,7 @@ const RoleSelector = () => {
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">{t('welcomeRoleSelector', 'Welcome to AquaGuard AI')}</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-2">{t('welcomeRoleSelector')}</h1>
           <p className="text-muted-foreground">{t('selectRoleToStart', 'Select your role to get started')}</p>
         </div>
 

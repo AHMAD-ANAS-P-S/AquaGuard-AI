@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const PWAInstallPrompt = () => {
+  const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -53,17 +55,17 @@ export const PWAInstallPrompt = () => {
             <Download className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-foreground mb-1">Install AquaGuard AI</h3>
+            <h3 className="font-semibold text-foreground mb-1">{t('installApp')}</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Install our app for offline access and quick launch
+              {t('installPrompt')}
             </p>
             <div className="flex gap-2">
               <Button onClick={handleInstall} size="sm" className="gap-2">
                 <Download className="w-4 h-4" />
-                Install
+                {t('installApp')}
               </Button>
               <Button onClick={handleDismiss} size="sm" variant="ghost">
-                Later
+                {t('later')}
               </Button>
             </div>
           </div>

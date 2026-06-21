@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   role: "bot" | "user";
@@ -22,18 +23,19 @@ const FAQ: { q: string; a: string }[] = [
   { q: "alert", a: "Alerts are triggered automatically when water quality sensors detect unsafe levels or AI predicts an outbreak. You'll get notifications and SMS." },
 ];
 
-const findAnswer = (input: string): string => {
+const findAnswer = (input: string, brandTitle: string): string => {
   const lower = input.toLowerCase();
   const match = FAQ.find(f => f.q.split(" ").some(word => lower.includes(word)) && f.q.split(" ").filter(word => lower.includes(word)).length >= 2);
   if (match) return match.a;
   
   if (lower.includes("hello") || lower.includes("hi") || lower.includes("help")) {
-    return "Hello! I'm AquaGuard AI Bot. I can help you with:\n• Submitting reports\n• Using the map\n• Earning points & badges\n• Exporting data\n• Image analysis\n• Offline mode\n\nJust ask me anything!";
+    return `Hello! I'm ${brandTitle} Bot. I can help you with:\n• Submitting reports\n• Using the map\n• Earning points & badges\n• Exporting data\n• Image analysis\n• Offline mode\n\nJust ask me anything!`;
   }
   return "I'm not sure about that. Try asking about: submitting reports, using the map, earning points, exporting data, image analysis, or offline mode. For urgent issues, contact your local ASHA worker.";
 };
 
 export const GuidanceBot = () => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", text: "Hi! I'm AquaGuard Bot 🤖\nHow can I help you use the app today?" },
@@ -52,7 +54,7 @@ export const GuidanceBot = () => {
     setMessages(prev => [...prev, { role: "user", text: userMsg }]);
     
     setTimeout(() => {
-      setMessages(prev => [...prev, { role: "bot", text: findAnswer(userMsg) }]);
+      setMessages(prev => [...prev, { role: "bot", text: findAnswer(userMsg, t('branding.title')) }]);
     }, 500);
   };
 

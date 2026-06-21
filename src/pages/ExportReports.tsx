@@ -155,6 +155,7 @@ const ExportReports = () => {
         </tr>`).join("");
       }
 
+      const brandTitle = t('branding.title');
       const htmlContent = `
         <html><head><title>${title} Report</title>
         <style>
@@ -166,7 +167,7 @@ const ExportReports = () => {
           .meta { color: #6b7280; font-size: 14px; margin-bottom: 20px; }
         </style></head>
         <body>
-          <h1>AquaGuard AI - ${title}</h1>
+          <h1>${brandTitle} - ${title}</h1>
           <div class="meta">
             <p>Village: ${villageName} | Generated: ${new Date().toLocaleString()}</p>
             ${dateFrom ? `<p>Period: ${dateFrom} to ${dateTo || "Present"}</p>` : ""}

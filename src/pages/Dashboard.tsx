@@ -290,7 +290,7 @@ const AdminDashboard = ({
                     </div>
                     <div className="p-2 rounded-xl bg-background/60 border border-border/30">
                       <p className="text-sm font-bold text-foreground">{simulationResult.drivers.aiPredictionScore}%</p>
-                      <p className="text-[9px] text-muted-foreground">AI Prediction</p>
+                      <p className="text-[9px] text-muted-foreground">{t('branding.aiPrediction')}</p>
                     </div>
                   </div>
                 </div>

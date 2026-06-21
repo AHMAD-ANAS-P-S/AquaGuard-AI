@@ -89,7 +89,7 @@ export const Navigation = () => {
     return (
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-card border-b border-border p-4 z-50">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-primary">AquaGuard AI</h1>
+          <h1 className="text-xl font-bold text-primary">{t('branding.title')}</h1>
           <div className="h-9 w-9 rounded-md border border-border animate-pulse bg-muted" />
         </div>
       </div>
@@ -204,7 +204,7 @@ export const Navigation = () => {
       {/* Mobile Navigation */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-card border-b border-border p-4 z-50">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-primary">AquaGuard AI</h1>
+          <h1 className="text-xl font-bold text-primary">{t('branding.title')}</h1>
           <div className="flex items-center gap-2">
             <OfflineIndicator />
             <Sheet>
@@ -232,8 +232,8 @@ export const Navigation = () => {
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex-col p-6 z-40">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-primary">AquaGuard AI</h1>
-          <p className="text-sm text-muted-foreground mt-1">Outbreak Early Warning System</p>
+          <h1 className="text-2xl font-bold text-primary">{t('branding.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('branding.subtitle')}</p>
         </div>
         
         <div className="mb-4 space-y-2">
